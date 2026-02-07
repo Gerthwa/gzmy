@@ -1,18 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors -->
-    <color name="primary_pink">#FF4081</color>
-    <color name="primary_pink_dark">#F50057</color>
-    
-    <!-- Secondary Colors -->
-    <color name="secondary_purple">#7C4DFF</color>
-    
-    <!-- Background Colors -->
-    <color name="background_dark">#121212</color>
-    <color name="card_background">#1E1E1E</color>
-    
-    <!-- Basic Colors -->
+    <!-- Primary - Soft Rose (daha sıcak, premium) -->
+    <color name="primary_pink">#E84576</color>
+    <color name="primary_pink_dark">#C23760</color>
+    <color name="primary_pink_light">#FF6B9D</color>
+
+    <!-- Secondary - Lavender Purple -->
+    <color name="secondary_purple">#8B5CF6</color>
+    <color name="secondary_purple_light">#A78BFA</color>
+
+    <!-- Accent - Warm Gold (premium his) -->
+    <color name="accent_gold">#F5A623</color>
+
+    <!-- Background - Derin lacivert-siyah -->
+    <color name="background_dark">#0F0F1A</color>
+    <color name="background_surface">#1A1A2E</color>
+
+    <!-- Card - Hafif saydam etki -->
+    <color name="card_background">#1E1E38</color>
+    <color name="card_background_elevated">#252545</color>
+
+    <!-- Text -->
     <color name="white">#FFFFFF</color>
-    <color name="gray">#9E9E9E</color>
+    <color name="text_secondary">#B0B0C8</color>
+    <color name="gray">#7A7A9A</color>
     <color name="black">#000000</color>
+
+    <!-- Gradient için -->
+    <color name="gradient_start">#E84576</color>
+    <color name="gradient_end">#8B5CF6</color>
+
+    <!-- Divider -->
+    <color name="divider">#2A2A4A</color>
 </resources>

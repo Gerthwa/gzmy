@@ -85,33 +85,33 @@ exports.sendNotification = functions.firestore
       // Titreşim pattern'i
       const vibrationTimings = getVibrationPattern(pattern);
       
-      // FCM bildirimi oluştur
+      // FCM bildirimi oluştur - DATA-ONLY payload
+      // NOT: notification bloğu KALDIRILDI. Böylece uygulama arka planda/kapalı
+      // iken de onMessageReceived() çağrılır ve özel titreşim çalışır.
       const payload = {
         token: fcmToken,
-        notification: {
-          title: title,
-          body: body,
-          sound: 'default',
-        },
         android: {
-          notification: {
-            channelId: 'gzmy_channel',
-            priority: 'high',
-            defaultVibrateTimings: false,
-            vibrateTimingsMillis: vibrationTimings,
-            visibility: 'public',
-            sound: 'default',
-          },
+          priority: 'high', // Cihazı uyandırır (data-only mesajlar için kritik)
         },
         apns: {
+          headers: {
+            'apns-priority': '10', // iOS için yüksek öncelik
+          },
           payload: {
             aps: {
+              alert: {
+                title: title,
+                body: body,
+              },
               sound: 'default',
               badge: 1,
+              'content-available': 1,
             },
           },
         },
         data: {
+          title: title,
+          body: body,
           type: type || 'note',
           vibrationPattern: pattern,
           senderId: senderId || '',
@@ -124,13 +124,43 @@ exports.sendNotification = functions.firestore
       
       // Bildirimi gönder
       const response = await admin.messaging().send(payload);
-      console.log('Bildirim gönderildi:', response);
+      console.log('Bildirim gönderildi:', {
+        response,
+        receiverId,
+        type,
+        pattern,
+        messageId: context.params.messageId,
+      });
       
       return { success: true, messageId: response };
       
     } catch (error) {
-      console.error('Bildirim gönderme hatası:', error);
-      return { success: false, error: error.message };
+      // Detaylı hata loglama
+      const errorInfo = {
+        code: error.code || 'UNKNOWN',
+        message: error.message,
+        messageId: context.params.messageId,
+        coupleCode,
+        senderId,
+        timestamp: new Date().toISOString(),
+      };
+      console.error('BILDIRIM_HATASI:', JSON.stringify(errorInfo));
+      
+      // Geçersiz token'ı temizle (token expired/unregistered)
+      if (
+        error.code === 'messaging/registration-token-not-registered' ||
+        error.code === 'messaging/invalid-registration-token'
+      ) {
+        console.warn('Geçersiz token siliniyor, receiverId:', receiverId);
+        try {
+          await admin.firestore().collection('tokens').doc(receiverId).delete();
+          console.log('Geçersiz token silindi:', receiverId);
+        } catch (deleteError) {
+          console.error('Token silme hatası:', deleteError.message);
+        }
+      }
+      
+      return { success: false, error: errorInfo };
     }
   });
 
