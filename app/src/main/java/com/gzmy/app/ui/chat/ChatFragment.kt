@@ -22,6 +22,7 @@ import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.databinding.FragmentChatBinding
+import com.gzmy.app.util.AnimationUtils as Anim
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,17 +111,22 @@ class ChatFragment : Fragment() {
                 stackFromEnd = true
             }
             adapter = chatAdapter
+            setHasFixedSize(true)
+            itemAnimator?.changeDuration = 0 // Flicker onleme
+            setItemViewCacheSize(20)
         }
     }
 
     private fun setupSendButton() {
-        binding.btnSendChat.setOnClickListener {
+        binding.btnSendChat.setOnClickListener { v ->
             val text = binding.etChatMessage.text?.toString()?.trim() ?: return@setOnClickListener
             if (text.isEmpty()) return@setOnClickListener
 
-            VibrationManager.performLightTap(requireContext())
-            sendChatMessage(text)
-            binding.etChatMessage.text?.clear()
+            Anim.pressScale(v) {
+                VibrationManager.performLightTap(requireContext())
+                sendChatMessage(text)
+                binding.etChatMessage.text?.clear()
+            }
         }
     }
 

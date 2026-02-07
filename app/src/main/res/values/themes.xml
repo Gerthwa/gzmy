@@ -1,4 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.Gzmy.Splash" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="Theme.Gzmy" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
@@ -17,20 +25,34 @@
         <item name="colorOnSurface">@color/white</item>
         <item name="colorSurfaceVariant">@color/card_background</item>
 
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/background_dark</item>
-        <item name="android:navigationBarColor">@color/background_dark</item>
+        <!-- Status bar - transparent for edge-to-edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Ripple color for interactive elements -->
+        <item name="colorControlHighlight">@color/ripple_pink</item>
 
         <!-- Text colors -->
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+
+        <!-- Smooth window animations -->
+        <item name="android:windowAnimationStyle">@style/GzmyWindowAnimation</item>
 
         <!-- Button styles -->
         <item name="materialButtonStyle">@style/Widget.Gzmy.Button</item>
 
         <!-- TextInputLayout -->
         <item name="textInputStyle">@style/Widget.Gzmy.TextInputLayout</item>
+    </style>
+
+    <!-- Window animation override for smoother activity transitions -->
+    <style name="GzmyWindowAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/fade_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>
     </style>
 
     <!-- Custom Button Style -->

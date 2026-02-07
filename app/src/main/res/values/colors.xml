@@ -25,4 +25,11 @@
 
     <!-- Divider -->
     <color name="divider">#2A2A4A</color>
+
+    <!-- Ripple / Touch feedback -->
+    <color name="ripple_pink">#33E84576</color>
+
+    <!-- Gradient accents -->
+    <color name="gradient_pink_start">#E84576</color>
+    <color name="gradient_purple_end">#8B5CF6</color>
 </resources>

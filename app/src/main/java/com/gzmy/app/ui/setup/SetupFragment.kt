@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.gzmy.app.R
 import com.gzmy.app.data.model.Couple
 import com.gzmy.app.databinding.FragmentSetupBinding
+import com.gzmy.app.util.AnimationUtils as Anim
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -37,41 +38,54 @@ class SetupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnCreateCouple.setOnClickListener {
-            showCreateCoupleView()
+        binding.btnCreateCouple.setOnClickListener { v ->
+            Anim.pressScale(v) { showCreateCoupleView() }
         }
 
-        binding.btnJoinCouple.setOnClickListener {
-            showJoinCoupleView()
+        binding.btnJoinCouple.setOnClickListener { v ->
+            Anim.pressScale(v) { showJoinCoupleView() }
         }
 
-        binding.btnCreateSubmit.setOnClickListener {
-            createCouple()
+        binding.btnCreateSubmit.setOnClickListener { v ->
+            Anim.pressScale(v) { createCouple() }
         }
 
-        binding.btnJoinSubmit.setOnClickListener {
-            joinCouple()
+        binding.btnJoinSubmit.setOnClickListener { v ->
+            Anim.pressScale(v) { joinCouple() }
         }
 
-        binding.btnCopyCode.setOnClickListener {
-            copyCodeToClipboard()
+        binding.btnCopyCode.setOnClickListener { v ->
+            Anim.pressScale(v) { copyCodeToClipboard() }
         }
 
-        binding.btnContinueAfterCreate.setOnClickListener {
-            navigateToMain()
+        binding.btnContinueAfterCreate.setOnClickListener { v ->
+            Anim.pressScale(v) { navigateToMain() }
         }
+
+        // Welcome ekranı giriş animasyonu
+        animateEntrance()
+    }
+
+    private fun animateEntrance() {
+        val root = binding.root as? ViewGroup ?: return
+        val scrollContent = root.getChildAt(0) as? ViewGroup ?: return
+        val views = mutableListOf<View>()
+        for (i in 0 until scrollContent.childCount) {
+            views.add(scrollContent.getChildAt(i))
+        }
+        Anim.staggeredEntrance(views, staggerDelay = 100L)
     }
 
     private fun showCreateCoupleView() {
         binding.layoutInitialButtons.visibility = View.GONE
-        binding.layoutCreateCouple.visibility = View.VISIBLE
         binding.layoutJoinCouple.visibility = View.GONE
+        Anim.slideUp(binding.layoutCreateCouple)
     }
 
     private fun showJoinCoupleView() {
         binding.layoutInitialButtons.visibility = View.GONE
         binding.layoutCreateCouple.visibility = View.GONE
-        binding.layoutJoinCouple.visibility = View.VISIBLE
+        Anim.slideUp(binding.layoutJoinCouple)
     }
 
     private fun createCouple() {
@@ -212,8 +226,9 @@ class SetupFragment : Fragment() {
     private fun showCodeCreated(code: String) {
         if (_binding != null) {
             binding.layoutCreateForm.visibility = View.GONE
-            binding.layoutCodeSuccess.visibility = View.VISIBLE
             binding.tvGeneratedCode.text = code
+            Anim.slideUp(binding.layoutCodeSuccess)
+            Anim.popIn(binding.tvGeneratedCode, startDelay = 200L)
         }
     }
 
@@ -227,6 +242,7 @@ class SetupFragment : Fragment() {
 
     private fun navigateToMain() {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
             .replace(R.id.container, MainFragment())
             .commit()
     }

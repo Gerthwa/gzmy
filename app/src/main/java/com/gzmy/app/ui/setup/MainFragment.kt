@@ -25,6 +25,7 @@ import com.gzmy.app.data.model.Couple
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.databinding.FragmentMainBinding
 import com.gzmy.app.ui.chat.ChatFragment
+import com.gzmy.app.util.AnimationUtils as Anim
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -72,6 +73,7 @@ class MainFragment : Fragment() {
             Log.e("Gzmy", "Missing user data, returning to setup")
             Toast.makeText(context, "Oturum bilgileri eksik, lütfen tekrar giriş yapın", Toast.LENGTH_LONG).show()
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.container, SetupFragment())
                 .commit()
             return
@@ -98,6 +100,20 @@ class MainFragment : Fragment() {
             newMessageReceiver,
             IntentFilter(GzmyApplication.ACTION_NEW_MESSAGE)
         )
+
+        // Kartların staggered giriş animasyonu
+        animateEntrance()
+    }
+
+    private fun animateEntrance() {
+        val root = binding.root as? android.view.ViewGroup ?: return
+        val scrollContent = root.getChildAt(0) as? android.view.ViewGroup ?: return
+
+        val cards = mutableListOf<View>()
+        for (i in 0 until scrollContent.childCount) {
+            cards.add(scrollContent.getChildAt(i))
+        }
+        Anim.staggeredEntrance(cards, staggerDelay = 65L)
     }
 
     // =============== ÖZELLİK 1: MISS YOU SLIDER ===============
@@ -194,6 +210,10 @@ class MainFragment : Fragment() {
         binding.btnChat.setOnClickListener {
             VibrationManager.performHeavyClick(requireContext())
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in_right, R.anim.slide_out_left,
+                    R.anim.slide_in_left, R.anim.slide_out_right
+                )
                 .replace(R.id.container, ChatFragment())
                 .addToBackStack("chat")
                 .commit()
@@ -256,46 +276,62 @@ class MainFragment : Fragment() {
     }
 
     private fun setupVibrationButtons() {
-        binding.btnGentle.setOnClickListener {
-            VibrationManager.performHeavyClick(requireContext())
-            sendVibration(Message.VibrationPattern.GENTLE)
+        binding.btnGentle.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performHeavyClick(requireContext())
+                sendVibration(Message.VibrationPattern.GENTLE)
+            }
         }
-        binding.btnHeartbeat.setOnClickListener {
-            VibrationManager.performHeartbeat(requireContext())
-            sendVibration(Message.VibrationPattern.HEARTBEAT)
+        binding.btnHeartbeat.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performHeartbeat(requireContext())
+                sendVibration(Message.VibrationPattern.HEARTBEAT)
+            }
         }
-        binding.btnIntense.setOnClickListener {
-            VibrationManager.performHeavyClick(requireContext())
-            sendVibration(Message.VibrationPattern.INTENSE)
+        binding.btnIntense.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performHeavyClick(requireContext())
+                sendVibration(Message.VibrationPattern.INTENSE)
+            }
         }
     }
 
     private fun setupEmojiButtons() {
-        binding.btnHeart.setOnClickListener {
-            VibrationManager.performLightTap(requireContext())
-            sendQuickEmoji("❤️")
+        binding.btnHeart.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performLightTap(requireContext())
+                sendQuickEmoji("❤️")
+            }
         }
-        binding.btnKiss.setOnClickListener {
-            VibrationManager.performLightTap(requireContext())
-            sendQuickEmoji("💋")
+        binding.btnKiss.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performLightTap(requireContext())
+                sendQuickEmoji("💋")
+            }
         }
-        binding.btnLove.setOnClickListener {
-            VibrationManager.performLightTap(requireContext())
-            sendQuickEmoji("🥰")
+        binding.btnLove.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performLightTap(requireContext())
+                sendQuickEmoji("🥰")
+            }
         }
-        binding.btnPlease.setOnClickListener {
-            VibrationManager.performLightTap(requireContext())
-            sendQuickEmoji("🥺")
+        binding.btnPlease.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performLightTap(requireContext())
+                sendQuickEmoji("🥺")
+            }
         }
     }
 
     private fun setupNoteButton() {
-        binding.btnSendNote.setOnClickListener {
+        binding.btnSendNote.setOnClickListener { v ->
             val note = binding.etNote.text.toString().trim()
             if (note.isNotEmpty()) {
-                VibrationManager.performHeavyClick(requireContext())
-                sendNote(note)
-                binding.etNote.text?.clear()
+                Anim.pressScale(v) {
+                    VibrationManager.performHeavyClick(requireContext())
+                    sendNote(note)
+                    binding.etNote.text?.clear()
+                }
             }
         }
     }
@@ -390,6 +426,8 @@ class MainFragment : Fragment() {
 
         messagesListener = db.collection("messages")
             .whereEqualTo("coupleCode", coupleCode)
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(20) // Performans: sadece son 20 mesaj
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     Log.e("Gzmy", "Listen error: ${error.message}")
@@ -437,6 +475,7 @@ class MainFragment : Fragment() {
     private fun showReceivedMessage(messageText: String) {
         if (_binding != null) {
             binding.tvLastMessage.text = messageText
+            Anim.shimmerFlash(binding.tvLastMessage)
             binding.tvLastMessage.visibility = View.VISIBLE
         }
     }
@@ -454,6 +493,7 @@ class MainFragment : Fragment() {
         prefs.edit().clear().apply()
 
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
             .replace(R.id.container, SetupFragment())
             .commit()
     }

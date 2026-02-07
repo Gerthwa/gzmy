@@ -4,21 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_dark"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true"
+    android:overScrollMode="never">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
 
-        <!-- Header -->
+        <!-- Header with gradient accent strip -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@drawable/bg_header_gradient"
+            android:layout_marginBottom="16dp"
+            android:layout_marginHorizontal="40dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -26,9 +38,10 @@
                 android:layout_weight="1"
                 android:text="gzmy"
                 android:textColor="@color/primary_pink"
-                android:textSize="28sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.05" />
+                android:letterSpacing="0.08"
+                android:fontFamily="sans-serif-medium" />
 
             <!-- Chat butonu -->
             <com.google.android.material.button.MaterialButton
@@ -43,7 +56,8 @@
                 android:text="💬"
                 android:textSize="22sp"
                 android:layout_marginEnd="4dp"
-                app:cornerRadius="24dp" />
+                app:cornerRadius="24dp"
+                app:rippleColor="@color/primary_pink_light" />
 
             <ImageButton
                 android:id="@+id/btnLogout"
@@ -103,9 +117,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/card_background"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
+            app:cardElevation="6dp"
             app:strokeColor="@color/divider"
             app:strokeWidth="1dp">
 
@@ -113,7 +127,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="@drawable/bg_miss_you_card">
 
                 <TextView
                     android:layout_width="wrap_content"
