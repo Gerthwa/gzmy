@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "gzmy"
-include ':app'
+include(":app")
