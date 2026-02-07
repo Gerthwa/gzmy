@@ -349,7 +349,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/bg_glass_card"
-                android:paddingHorizontal="24dp"
+                android:paddingHorizontal="16dp"
                 android:paddingVertical="20dp">
 
                 <TextView
@@ -357,69 +357,163 @@
                     android:layout_height="wrap_content"
                     android:text="Hızlı Duygu"
                     style="@style/TextAppearance.Gzmy.SectionTitle"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginStart="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:baselineAligned="false">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnHeart"
-                        android:layout_width="62dp"
-                        android:layout_height="62dp"
-                        android:text="❤️"
-                        android:textSize="26sp"
-                        android:background="@drawable/bg_emoji_circle"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="31dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        app:rippleColor="@color/ripple_pink" />
+                    <!-- Heart -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnKiss"
-                        android:layout_width="62dp"
-                        android:layout_height="62dp"
-                        android:text="💋"
-                        android:textSize="26sp"
-                        android:background="@drawable/bg_emoji_circle"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="31dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        app:rippleColor="@color/ripple_pink" />
+                        <FrameLayout
+                            android:id="@+id/btnHeart"
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:background="@drawable/bg_emoji_circle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLove"
-                        android:layout_width="62dp"
-                        android:layout_height="62dp"
-                        android:text="🥰"
-                        android:textSize="26sp"
-                        android:background="@drawable/bg_emoji_circle"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="31dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        app:rippleColor="@color/ripple_pink" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="❤️"
+                                android:textSize="32sp"
+                                android:includeFontPadding="false" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPlease"
-                        android:layout_width="62dp"
-                        android:layout_height="62dp"
-                        android:text="🥺"
-                        android:textSize="26sp"
-                        android:background="@drawable/bg_emoji_circle"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="31dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        app:rippleColor="@color/ripple_pink" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Aşk"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp" />
+
+                    </LinearLayout>
+
+                    <!-- Kiss -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <FrameLayout
+                            android:id="@+id/btnKiss"
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:background="@drawable/bg_emoji_circle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="💋"
+                                android:textSize="32sp"
+                                android:includeFontPadding="false" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Öpücük"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp" />
+
+                    </LinearLayout>
+
+                    <!-- Love -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <FrameLayout
+                            android:id="@+id/btnLove"
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:background="@drawable/bg_emoji_circle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="🥰"
+                                android:textSize="32sp"
+                                android:includeFontPadding="false" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sevgi"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp" />
+
+                    </LinearLayout>
+
+                    <!-- Please -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <FrameLayout
+                            android:id="@+id/btnPlease"
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:background="@drawable/bg_emoji_circle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="🥺"
+                                android:textSize="32sp"
+                                android:includeFontPadding="false" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Lütfen"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
