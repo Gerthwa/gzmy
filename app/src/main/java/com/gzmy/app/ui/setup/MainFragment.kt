@@ -95,6 +95,9 @@ class MainFragment : Fragment() {
         listenForMessages()
         listenForCoupleUpdates()
 
+        // Ambient animations
+        Anim.floatUpDown(binding.lottieHeart, amplitude = 6f, duration = 3500L)
+
         // Foreground broadcast'i dinle
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             newMessageReceiver,

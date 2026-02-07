@@ -1,5 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ═══════════════════════════════════════════════ -->
+    <!--  GZMY PREMIUM THEME SYSTEM                     -->
+    <!-- ═══════════════════════════════════════════════ -->
+
     <!-- Splash Screen Theme -->
     <style name="Theme.Gzmy.Splash" parent="Theme.Material3.Dark.NoActionBar">
         <item name="android:windowBackground">@color/background_dark</item>
@@ -7,47 +11,43 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
     <style name="Theme.Gzmy" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- Primary brand color. -->
+        <!-- Brand colors -->
         <item name="colorPrimary">@color/primary_pink</item>
         <item name="colorPrimaryVariant">@color/primary_pink_dark</item>
         <item name="colorOnPrimary">@color/white</item>
-
-        <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/secondary_purple</item>
         <item name="colorSecondaryVariant">@color/secondary_purple</item>
         <item name="colorOnSecondary">@color/white</item>
 
-        <!-- Background colors -->
+        <!-- Surfaces -->
         <item name="android:colorBackground">@color/background_dark</item>
         <item name="colorSurface">@color/background_surface</item>
-        <item name="colorOnSurface">@color/white</item>
-        <item name="colorSurfaceVariant">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/background_elevated</item>
 
-        <!-- Status bar - transparent for edge-to-edge -->
+        <!-- Edge-to-edge -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
 
-        <!-- Ripple color for interactive elements -->
+        <!-- Interaction feedback -->
         <item name="colorControlHighlight">@color/ripple_pink</item>
 
-        <!-- Text colors -->
-        <item name="android:textColorPrimary">@color/white</item>
+        <!-- Typography -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
 
-        <!-- Smooth window animations -->
+        <!-- Window animations -->
         <item name="android:windowAnimationStyle">@style/GzmyWindowAnimation</item>
 
-        <!-- Button styles -->
+        <!-- Component overrides -->
         <item name="materialButtonStyle">@style/Widget.Gzmy.Button</item>
-
-        <!-- TextInputLayout -->
         <item name="textInputStyle">@style/Widget.Gzmy.TextInputLayout</item>
     </style>
 
-    <!-- Window animation override for smoother activity transitions -->
+    <!-- Smooth window transitions -->
     <style name="GzmyWindowAnimation" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>
         <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
@@ -55,55 +55,74 @@
         <item name="android:activityCloseExitAnimation">@anim/fade_out</item>
     </style>
 
-    <!-- Custom Button Style -->
+    <!-- ── Button Styles ── -->
+
     <style name="Widget.Gzmy.Button" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/primary_pink</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">16dp</item>
-        <item name="elevation">4dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="elevation">0dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="rippleColor">@color/ripple_white</item>
     </style>
 
-    <!-- Outlined Button Style -->
     <style name="Widget.Gzmy.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="strokeColor">@color/primary_pink</item>
-        <item name="android:textColor">@color/primary_pink</item>
-        <item name="cornerRadius">16dp</item>
+        <item name="strokeColor">@color/glass_card_border</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="rippleColor">@color/ripple_pink</item>
     </style>
 
-    <!-- Tonal Button Style (secondary) -->
     <style name="Widget.Gzmy.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
         <item name="backgroundTint">@color/secondary_purple</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">16dp</item>
-        <item name="elevation">4dp</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="elevation">0dp</item>
     </style>
 
-    <!-- Circle Button Style -->
-    <style name="Widget.Gzmy.Button.Circle" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@color/card_background_elevated</item>
-        <item name="cornerRadius">50dp</item>
-        <item name="elevation">4dp</item>
+    <style name="Widget.Gzmy.Button.Ghost" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="rippleColor">@color/ripple_white</item>
     </style>
 
-    <!-- TextInputLayout Style -->
+    <!-- ── TextInputLayout ── -->
+
     <style name="Widget.Gzmy.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxBackgroundColor">@color/card_background</item>
+        <item name="boxBackgroundColor">@color/glass_card</item>
         <item name="boxStrokeColor">@color/primary_pink</item>
         <item name="hintTextColor">@color/primary_pink_light</item>
-        <item name="boxCornerRadiusTopStart">12dp</item>
-        <item name="boxCornerRadiusTopEnd">12dp</item>
-        <item name="boxCornerRadiusBottomStart">12dp</item>
-        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
     </style>
 
-    <!-- Card Style -->
+    <!-- ── Card Style ── -->
+
     <style name="Widget.Gzmy.CardView" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardBackgroundColor">@color/card_background</item>
-        <item name="cardCornerRadius">20dp</item>
-        <item name="cardElevation">4dp</item>
-        <item name="strokeColor">@color/divider</item>
-        <item name="strokeWidth">1dp</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+        <item name="cardCornerRadius">24dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
     </style>
+
+    <!-- ── Section Title ── -->
+
+    <style name="TextAppearance.Gzmy.SectionTitle">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.Gzmy.Caption">
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
 </resources>

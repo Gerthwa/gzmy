@@ -2,19 +2,19 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="3dp">
+    android:paddingVertical="4dp"
+    android:paddingStart="4dp"
+    android:paddingEnd="48dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:layout_marginEnd="60dp"
         android:orientation="vertical"
         android:background="@drawable/bg_bubble_received"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="10dp"
-        android:maxWidth="280dp"
-        android:elevation="2dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:maxWidth="280dp">
 
         <TextView
             android:id="@+id/tvSenderName"
@@ -22,25 +22,26 @@
             android:layout_height="wrap_content"
             android:textColor="@color/primary_pink_light"
             android:textSize="11sp"
-            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
             android:layout_marginBottom="2dp" />
 
         <TextView
             android:id="@+id/tvMessageContent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="15sp"
-            android:lineSpacingExtra="2dp" />
+            android:lineSpacingExtra="3dp" />
 
         <TextView
             android:id="@+id/tvMessageTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:textColor="@color/gray"
+            android:textColor="@color/text_tertiary"
             android:textSize="10sp"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-light" />
 
     </LinearLayout>
 

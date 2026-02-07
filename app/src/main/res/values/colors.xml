@@ -1,35 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary - Soft Rose (daha sıcak, premium) -->
-    <color name="primary_pink">#E84576</color>
-    <color name="primary_pink_dark">#C23760</color>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!--  GZMY PREMIUM COLOR SYSTEM                     -->
+    <!--  Cosmic dark theme + neon rose accents          -->
+    <!-- ═══════════════════════════════════════════════ -->
+
+    <!-- Primary Rose Gradient Spectrum -->
+    <color name="primary_pink">#F43F7A</color>
+    <color name="primary_pink_dark">#D6336C</color>
     <color name="primary_pink_light">#FF6B9D</color>
+    <color name="primary_pink_glow">#40F43F7A</color>
 
-    <!-- Secondary - Lavender Purple -->
-    <color name="secondary_purple">#8B5CF6</color>
-    <color name="secondary_purple_light">#A78BFA</color>
+    <!-- Secondary Violet Spectrum -->
+    <color name="secondary_purple">#9333EA</color>
+    <color name="secondary_purple_light">#A855F7</color>
+    <color name="secondary_purple_glow">#409333EA</color>
 
-    <!-- Background - Derin lacivert-siyah -->
-    <color name="background_dark">#0F0F1A</color>
-    <color name="background_surface">#1A1A2E</color>
+    <!-- Tertiary Coral (warm accent) -->
+    <color name="tertiary_coral">#FB7185</color>
+    <color name="tertiary_gold">#FBBF24</color>
 
-    <!-- Card - Hafif saydam etki -->
-    <color name="card_background">#1E1E38</color>
-    <color name="card_background_elevated">#252545</color>
+    <!-- ── Background Layers (depth system) ── -->
+    <color name="background_dark">#080810</color>         <!-- Deepest void -->
+    <color name="background_surface">#0E0E1A</color>      <!-- Base surface -->
+    <color name="background_elevated">#141428</color>      <!-- Elevated layer -->
 
-    <!-- Text -->
+    <!-- ── Glass Card System ── -->
+    <color name="glass_card">#18FFFFFF</color>             <!-- 9% white overlay -->
+    <color name="glass_card_border">#20FFFFFF</color>      <!-- 12% white border -->
+    <color name="glass_card_elevated">#22FFFFFF</color>    <!-- 13% white, elevated -->
+    <color name="glass_highlight">#0DFFFFFF</color>        <!-- Subtle inner glow -->
+
+    <!-- ── Text Hierarchy ── -->
     <color name="white">#FFFFFF</color>
-    <color name="text_secondary">#B0B0C8</color>
-    <color name="gray">#7A7A9A</color>
+    <color name="text_primary">#F0F0FF</color>             <!-- Slightly warm white -->
+    <color name="text_secondary">#9CA3C0</color>           <!-- Muted lavender -->
+    <color name="text_tertiary">#636B8A</color>            <!-- Dimmed -->
+    <color name="gray">#4B5279</color>
     <color name="black">#000000</color>
 
-    <!-- Divider -->
-    <color name="divider">#2A2A4A</color>
+    <!-- ── Functional Colors ── -->
+    <color name="divider">#15FFFFFF</color>                <!-- Very subtle divider -->
+    <color name="success_green">#34D399</color>
+    <color name="warning_amber">#FBBF24</color>
 
-    <!-- Ripple / Touch feedback -->
-    <color name="ripple_pink">#33E84576</color>
+    <!-- ── Interaction Feedback ── -->
+    <color name="ripple_pink">#30F43F7A</color>
+    <color name="ripple_white">#12FFFFFF</color>
 
-    <!-- Gradient accents -->
-    <color name="gradient_pink_start">#E84576</color>
-    <color name="gradient_purple_end">#8B5CF6</color>
+    <!-- ── Gradient Anchors ── -->
+    <color name="gradient_pink_start">#F43F7A</color>
+    <color name="gradient_purple_end">#9333EA</color>
+    <color name="gradient_warm_start">#F43F7A</color>
+    <color name="gradient_warm_end">#FB7185</color>
+
+    <!-- Legacy compat -->
+    <color name="card_background">#18FFFFFF</color>
+    <color name="card_background_elevated">#22FFFFFF</color>
+
 </resources>

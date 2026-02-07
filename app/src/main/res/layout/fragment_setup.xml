@@ -7,41 +7,48 @@
     android:fillViewport="true"
     android:clipToPadding="false"
     android:fitsSystemWindows="true"
-    android:overScrollMode="never">
+    android:overScrollMode="never"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="32dp">
+        android:paddingHorizontal="32dp"
+        android:paddingTop="80dp"
+        android:paddingBottom="40dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💕"
-            android:textSize="64sp"
-            android:layout_marginBottom="16dp" />
+        <!-- Gradient line -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_header_gradient"
+            android:layout_marginBottom="32dp" />
 
+        <!-- Brand -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="gzmy"
             android:textColor="@color/primary_pink"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.05"
-            android:layout_marginBottom="8dp" />
+            android:textSize="48sp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.12"
+            android:layout_marginBottom="4dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hoş Geldiniz"
-            android:textColor="@color/text_secondary"
-            android:textSize="18sp"
-            android:layout_marginBottom="48dp" />
+            android:text="seni hissediyorum"
+            android:textColor="@color/text_tertiary"
+            android:textSize="14sp"
+            android:letterSpacing="0.08"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginBottom="60dp" />
 
-        <!-- Başlangıç Butonları -->
+        <!-- ── Initial Buttons ── -->
         <LinearLayout
             android:id="@+id/layoutInitialButtons"
             android:layout_width="match_parent"
@@ -52,31 +59,34 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCreateCouple"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="58dp"
                 android:text="Yeni Çift Oluştur"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                android:padding="16dp"
-                app:cornerRadius="16dp"
-                android:backgroundTint="@color/primary_pink"
-                app:elevation="6dp" />
+                android:textColor="@color/white"
+                android:letterSpacing="0.02"
+                android:background="@drawable/bg_gradient_pill"
+                app:backgroundTint="@null"
+                app:cornerRadius="29dp"
+                app:rippleColor="@color/ripple_white" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnJoinCouple"
+                style="@style/Widget.Gzmy.Button.Outlined"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="58dp"
                 android:text="Çifte Katıl"
                 android:textAllCaps="false"
                 android:textSize="16sp"
-                android:padding="16dp"
+                android:letterSpacing="0.02"
                 android:layout_marginTop="16dp"
-                app:cornerRadius="16dp"
-                android:backgroundTint="@color/secondary_purple"
-                app:elevation="6dp" />
+                app:strokeColor="@color/glass_card_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="29dp" />
 
         </LinearLayout>
 
-        <!-- Çift Oluşturma Formu -->
+        <!-- ── Create Couple Form ── -->
         <LinearLayout
             android:id="@+id/layoutCreateCouple"
             android:layout_width="match_parent"
@@ -84,71 +94,67 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.google.android.material.card.MaterialCardView
+            <FrameLayout
                 android:id="@+id/layoutCreateForm"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                app:strokeColor="@color/divider"
-                app:strokeWidth="1dp">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:background="@drawable/bg_glass_card"
+                    android:padding="28dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Çift Oluştur"
-                        android:textColor="@color/white"
+                        style="@style/TextAppearance.Gzmy.SectionTitle"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="20dp" />
+                        android:layout_marginBottom="24dp" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Adınız"
-                        android:textColorHint="@color/gray"
-                        app:boxBackgroundColor="@color/card_background_elevated"
+                        android:textColorHint="@color/text_tertiary"
+                        app:boxBackgroundColor="@color/glass_card"
                         app:boxStrokeColor="@color/primary_pink"
                         app:hintTextColor="@color/primary_pink_light"
-                        app:boxCornerRadiusTopStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etYourNameCreate"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/text_primary" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCreateSubmit"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Çift Oluştur"
+                        android:layout_height="56dp"
+                        android:text="Oluştur"
                         android:textAllCaps="false"
                         android:textSize="16sp"
-                        android:padding="16dp"
+                        android:textColor="@color/white"
                         android:layout_marginTop="24dp"
-                        app:cornerRadius="16dp"
-                        android:backgroundTint="@color/primary_pink"
-                        app:elevation="4dp" />
+                        android:background="@drawable/bg_gradient_pill"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="28dp"
+                        app:rippleColor="@color/ripple_white" />
 
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
 
-            <!-- Kod Oluşturuldu -->
+            <!-- Code Success -->
             <LinearLayout
                 android:id="@+id/layoutCodeSuccess"
                 android:layout_width="match_parent"
@@ -157,38 +163,34 @@
                 android:gravity="center"
                 android:visibility="gone">
 
-                <com.google.android.material.card.MaterialCardView
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="@color/divider"
-                    app:strokeWidth="1dp">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:padding="32dp">
+                        android:background="@drawable/bg_glass_hero"
+                        android:padding="36dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Çiftin oluşturuldu! 💕"
-                            android:textColor="@color/white"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="12dp" />
+                            android:text="Hazırsınız! 💕"
+                            android:textColor="@color/text_primary"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Bu kodu partnerinle paylaş:"
+                            android:text="Bu kodu partnerinle paylaş"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
-                            android:layout_marginBottom="20dp" />
+                            android:layout_marginBottom="28dp" />
 
                         <TextView
                             android:id="@+id/tvGeneratedCode"
@@ -196,91 +198,86 @@
                             android:layout_height="wrap_content"
                             android:text="ABC123"
                             android:textColor="@color/primary_pink"
-                            android:textSize="36sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.25"
+                            android:textSize="40sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.3"
                             android:background="@drawable/bg_code"
-                            android:paddingHorizontal="36dp"
+                            android:paddingHorizontal="40dp"
                             android:paddingVertical="20dp"
-                            android:layout_marginBottom="20dp" />
+                            android:layout_marginBottom="24dp" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnCopyCode"
+                            style="@style/Widget.Gzmy.Button.Outlined"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Kodu Kopyala"
                             android:textAllCaps="false"
-                            app:cornerRadius="16dp"
-                            android:backgroundTint="@color/secondary_purple"
-                            app:elevation="4dp" />
+                            app:cornerRadius="24dp" />
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnContinueAfterCreate"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:text="Devam Et"
                     android:textAllCaps="false"
                     android:textSize="16sp"
-                    android:padding="16dp"
+                    android:textColor="@color/white"
                     android:layout_marginTop="24dp"
-                    app:cornerRadius="16dp"
-                    android:backgroundTint="@color/primary_pink"
-                    app:elevation="6dp" />
+                    android:background="@drawable/bg_gradient_pill"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="28dp"
+                    app:rippleColor="@color/ripple_white" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Çifte Katılma Formu -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- ── Join Couple Form ── -->
+        <FrameLayout
             android:id="@+id/layoutJoinCouple"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:strokeColor="@color/divider"
-            app:strokeWidth="1dp">
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:background="@drawable/bg_glass_card"
+                android:padding="28dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Çifte Katıl"
-                    android:textColor="@color/white"
+                    style="@style/TextAppearance.Gzmy.SectionTitle"
                     android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_marginBottom="24dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Adınız"
-                    android:textColorHint="@color/gray"
-                    app:boxBackgroundColor="@color/card_background_elevated"
+                    android:textColorHint="@color/text_tertiary"
+                    app:boxBackgroundColor="@color/glass_card"
                     app:boxStrokeColor="@color/primary_pink"
                     app:hintTextColor="@color/primary_pink_light"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etYourNameJoin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/text_primary" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -288,43 +285,46 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Çift Kodu (6 haneli)"
-                    android:textColorHint="@color/gray"
-                    app:boxBackgroundColor="@color/card_background_elevated"
+                    android:textColorHint="@color/text_tertiary"
+                    app:boxBackgroundColor="@color/glass_card"
                     app:boxStrokeColor="@color/primary_pink"
                     app:hintTextColor="@color/primary_pink_light"
                     android:layout_marginTop="16dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etCoupleCode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white"
+                        android:textColor="@color/text_primary"
                         android:maxLength="6"
-                        android:inputType="textCapCharacters" />
+                        android:inputType="textCapCharacters"
+                        android:letterSpacing="0.2"
+                        android:textSize="18sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnJoinSubmit"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Çifte Katıl"
+                    android:layout_height="56dp"
+                    android:text="Katıl"
                     android:textAllCaps="false"
                     android:textSize="16sp"
-                    android:padding="16dp"
+                    android:textColor="@color/white"
                     android:layout_marginTop="24dp"
-                    app:cornerRadius="16dp"
-                    android:backgroundTint="@color/primary_pink"
-                    app:elevation="4dp" />
+                    android:background="@drawable/bg_gradient_pill"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="28dp"
+                    app:rippleColor="@color/ripple_white" />
 
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+        </FrameLayout>
 
         <ProgressBar
             android:id="@+id/progressBar"
