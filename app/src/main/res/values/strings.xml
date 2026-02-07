@@ -47,7 +47,8 @@
     <!-- Hakkında -->
     <string name="about_title">gzmy Hakkında</string>
     <string name="about_description">Sen ve sevgilin için özel yapılmış minimal bir couple app.\n\nUygulama kapalıyken bile titreşim gönderebilirsiniz.</string>
-    <string name="version">Versiyon 1.0.0</string>
+    <string name="version">Versiyon 2.0.0</string>
+    <string name="widget_description">Partnerinden gelen son mesaj ve özlem seviyesi</string>
     
     <!-- Ayarlar -->
     <string name="settings">Ayarlar</string>

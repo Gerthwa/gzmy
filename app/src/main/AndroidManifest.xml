@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
 
-        <!-- FCM Servisi - Uygulama kapalıyken bildirim almak için -->
+        <!-- FCM Servisi -->
         <service
             android:name=".service.FCMService"
             android:exported="false"
@@ -47,6 +47,18 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <!-- ÖZELLİK 5: Ana Ekran Widget'ı -->
+        <receiver
+            android:name=".widget.GzmyWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/gzmy_widget_info" />
+        </receiver>
 
         <!-- Bildirim Kanalı Meta-Data -->
         <meta-data

@@ -16,13 +16,14 @@ data class Message(
     enum class MessageType {
         VIBRATION,
         NOTE,
-        HEARTBEAT
+        HEARTBEAT,
+        CHAT
     }
-    
+
     enum class VibrationPattern {
-        GENTLE,      // Yumuşak - 200ms
-        HEARTBEAT,   // Kalp atışı - tik-tik-tok
-        INTENSE      // Yoğun - 500ms güçlü
+        GENTLE,
+        HEARTBEAT,
+        INTENSE
     }
 }
 
@@ -32,6 +33,7 @@ data class Couple(
     val partner1Name: String = "",
     val partner2Id: String = "",
     val partner2Name: String = "",
+    val missYouLevel: Map<String, Int> = emptyMap(),
     val createdAt: Timestamp = Timestamp.now(),
     val lastActivity: Timestamp = Timestamp.now()
 )

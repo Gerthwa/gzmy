@@ -30,6 +30,21 @@
                 android:textStyle="bold"
                 android:letterSpacing="0.05" />
 
+            <!-- Chat butonu -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnChat"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="💬"
+                android:textSize="22sp"
+                android:layout_marginEnd="4dp"
+                app:cornerRadius="24dp" />
+
             <ImageButton
                 android:id="@+id/btnLogout"
                 android:layout_width="44dp"
@@ -78,6 +93,94 @@
                     android:textSize="15sp"
                     android:gravity="center"
                     android:visibility="visible" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ÖZELLİK 1: Beni Ne Kadar Özledin? Slider -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/card_background"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💕 Beni Ne Kadar Özledin?"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+
+                <!-- Partner seviyesi göstergesi -->
+                <TextView
+                    android:id="@+id/tvPartnerMissLevel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Partnerinin seviyesi: —"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Slider değer göstergesi -->
+                <TextView
+                    android:id="@+id/tvMissYouValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🤍 0"
+                    android:textColor="@color/primary_pink"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginBottom="4dp" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderMissYou"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="0"
+                    android:valueTo="100"
+                    android:stepSize="1"
+                    app:thumbColor="@color/primary_pink"
+                    app:trackColorActive="@color/primary_pink"
+                    app:trackColorInactive="@color/card_background_elevated"
+                    app:haloColor="@color/primary_pink_light"
+                    app:labelBehavior="gone" />
+
+                <!-- Alt etiketler -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Az 🙂"
+                        android:textColor="@color/gray"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Çok! 🥺"
+                        android:textColor="@color/gray"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 

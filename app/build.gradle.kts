@@ -13,8 +13,8 @@ android {
         applicationId = "com.gzmy.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-process:2.7.0")
     
     // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
@@ -82,6 +83,9 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    
+    // LocalBroadcastManager (foreground bildirim yönetimi)
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
     
     // Lottie (animasyonlar için)
     implementation("com.airbnb.android:lottie:6.3.0")

@@ -21,7 +21,13 @@
 # Keep FCM Service
 -keep class com.gzmy.app.service.FCMService { *; }
 
-# Keep Activities
+# Keep Widget Provider
+-keep class com.gzmy.app.widget.GzmyWidgetProvider { *; }
+
+# Keep VibrationManager
+-keep class com.gzmy.app.util.VibrationManager { *; }
+
+# Keep Activities & Fragments
 -keep class com.gzmy.app.ui.** { *; }
 
 # Firebase Messaging

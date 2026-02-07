@@ -81,6 +81,12 @@ exports.sendNotification = functions.firestore
           pattern = 'gentle';
           break;
         
+        case 'chat':
+          title = `💬 ${senderName || 'Partnerin'}`;
+          body = (content && content.length > 100) ? content.substring(0, 97) + '...' : (content || 'Yeni mesaj!');
+          pattern = 'gentle';
+          break;
+        
         default:
           title = `💕 ${senderName || 'Partnerin'}`;
           body = 'Yeni mesaj!';

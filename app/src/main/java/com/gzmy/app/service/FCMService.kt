@@ -2,26 +2,28 @@ package com.gzmy.app.service
 
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.PowerManager
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
+import com.gzmy.app.ui.chat.ChatFragment
 import com.gzmy.app.ui.main.MainActivity
+import com.gzmy.app.util.VibrationManager
+import com.gzmy.app.widget.GzmyWidgetProvider
 
 class FCMService : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "FCMService"
-        private const val WAKELOCK_TIMEOUT = 10_000L // 10 saniye
+        private const val WAKELOCK_TIMEOUT = 10_000L
     }
 
     override fun onNewToken(token: String) {
@@ -50,7 +52,6 @@ class FCMService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        // WakeLock al: CPU'nun uyanık kalmasını sağla (uygulama kapalıyken kritik)
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
@@ -61,95 +62,74 @@ class FCMService : FirebaseMessagingService() {
         try {
             Log.d(TAG, "=== MESAJ ALINDI ===")
             Log.d(TAG, "Data: ${remoteMessage.data}")
-            Log.d(TAG, "Notification: ${remoteMessage.notification}")
 
             val data = remoteMessage.data
-
-            // Cloud Function küçük harf gönderir, ama güvenlik için lowercase'e çevir
             val type = (data["type"] ?: "note").lowercase()
             val vibrationPattern = (data["vibrationPattern"] ?: "gentle").lowercase()
             val title = data["title"] ?: "gzmy"
             val body = data["body"] ?: "Yeni mesaj!"
 
             Log.d(TAG, "İşlenecek: type=$type, pattern=$vibrationPattern, title=$title")
+            Log.d(TAG, "isAppInForeground=${GzmyApplication.isAppInForeground}, isChatActive=${ChatFragment.isChatScreenActive}")
 
-            // Titreşim çal
-            try {
-                when (type) {
-                    "vibration" -> vibrate(vibrationPattern)
-                    "heartbeat" -> vibrateHeartbeat()
-                    "note" -> vibrateGentle()
-                    else -> vibrateGentle()
+            // ÖZELLİK 3: Akıllı Bildirim Yönetimi
+            if (GzmyApplication.isAppInForeground) {
+                // === FOREGROUND ===
+                // Bildirim gösterme! Sadece LocalBroadcast ile UI'ı güncelle
+                Log.d(TAG, "Uygulama ön planda — sessiz broadcast gönderiliyor")
+
+                val broadcastIntent = Intent(GzmyApplication.ACTION_NEW_MESSAGE).apply {
+                    putExtra("title", title)
+                    putExtra("body", body)
+                    putExtra("type", type)
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Titreşim hatası: ${e.message}")
+                LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+
+                // Chat ekranında değilsek hafif bir titreşim ver
+                if (!ChatFragment.isChatScreenActive) {
+                    VibrationManager.performLightTap(this)
+                }
+            } else {
+                // === BACKGROUND / KILLED ===
+                Log.d(TAG, "Uygulama arka planda — bildirim gösteriliyor")
+
+                // Titreşim çal
+                try {
+                    when (type) {
+                        "vibration" -> vibrateByPattern(vibrationPattern)
+                        "heartbeat" -> VibrationManager.performHeartbeat(this)
+                        "note", "chat" -> VibrationManager.performLightTap(this)
+                        else -> VibrationManager.performLightTap(this)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Titreşim hatası: ${e.message}")
+                }
+
+                // Bildirim göster
+                showNotification(title, body, data)
             }
 
-            // Bildirim göster
-            showNotification(title, body, data)
-            Log.d(TAG, "=== BİLDİRİM GÖSTERİLDİ ===")
+            // ÖZELLİK 5: Widget'ı güncelle (her durumda)
+            updateWidget(body)
+
+            Log.d(TAG, "=== İŞLEM TAMAMLANDI ===")
 
         } finally {
-            // WakeLock'u serbest bırak
             if (wakeLock.isHeld) {
                 wakeLock.release()
             }
         }
     }
 
-    // --- Vibrator Helper (API 31+ uyumlu) ---
-
-    private fun getVibratorCompat(): Vibrator {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vm = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vm.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-    }
-
-    private fun vibrate(pattern: String) {
-        val vibrator = getVibratorCompat()
-        val vibrationPattern = when (pattern) {
+    private fun vibrateByPattern(pattern: String) {
+        val vibPattern = when (pattern) {
             "gentle" -> longArrayOf(0, 200)
-            "heartbeat" -> longArrayOf(0, 100, 100, 100, 300, 200)
+            "heartbeat" -> longArrayOf(0, 80, 120, 80, 400, 80, 120, 80)
             "intense" -> longArrayOf(0, 500)
             else -> longArrayOf(0, 200)
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val effect = VibrationEffect.createWaveform(vibrationPattern, -1)
-            vibrator.vibrate(effect)
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(vibrationPattern, -1)
-        }
+        VibrationManager.vibratePattern(this, vibPattern)
     }
-
-    private fun vibrateGentle() {
-        val vibrator = getVibratorCompat()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(200)
-        }
-    }
-
-    private fun vibrateHeartbeat() {
-        val vibrator = getVibratorCompat()
-        val pattern = longArrayOf(0, 100, 100, 100, 300, 200)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(pattern, -1)
-        }
-    }
-
-    // --- Bildirim ---
 
     private fun showNotification(title: String, body: String, data: Map<String, String>) {
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -180,5 +160,28 @@ class FCMService : FirebaseMessagingService() {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
+    }
+
+    /** ÖZELLİK 5: Widget güncelleme */
+    private fun updateWidget(lastMessage: String) {
+        try {
+            val prefs = getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
+            prefs.edit().putString("last_message", lastMessage).apply()
+
+            val widgetManager = AppWidgetManager.getInstance(this)
+            val widgetComponent = ComponentName(this, GzmyWidgetProvider::class.java)
+            val widgetIds = widgetManager.getAppWidgetIds(widgetComponent)
+
+            if (widgetIds.isNotEmpty()) {
+                val updateIntent = Intent(this, GzmyWidgetProvider::class.java).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+                }
+                sendBroadcast(updateIntent)
+                Log.d(TAG, "Widget güncelleme broadcast'i gönderildi (${widgetIds.size} widget)")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Widget güncelleme hatası: ${e.message}")
+        }
     }
 }
