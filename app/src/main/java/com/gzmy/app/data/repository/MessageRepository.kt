@@ -41,20 +41,22 @@ class MessageRepository {
         coupleCode: String,
         senderId: String,
         pattern: Message.VibrationPattern
-    ): Result<Unit> = try {
-        val message = Message(
-            coupleCode = coupleCode,
-            senderId = senderId,
-            type = Message.MessageType.VIBRATION,
-            vibrationPattern = pattern,
-            content = "💓 Titreşim gönderdi"
-        )
-        
-        messagesCollection.add(message).await()
-        updateLastActivity(coupleCode)
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
+    ): Result<Unit> {
+        return try {
+            val message = Message(
+                coupleCode = coupleCode,
+                senderId = senderId,
+                type = Message.MessageType.VIBRATION,
+                vibrationPattern = pattern,
+                content = "💓 Titreşim gönderdi"
+            )
+            
+            messagesCollection.add(message).await()
+            updateLastActivity(coupleCode)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     // Not gönder (app kapalıyken de FCM ile gider)
@@ -63,40 +65,44 @@ class MessageRepository {
         senderId: String,
         senderName: String,
         content: String
-    ): Result<Unit> = try {
-        val message = Message(
-            coupleCode = coupleCode,
-            senderId = senderId,
-            senderName = senderName,
-            type = Message.MessageType.NOTE,
-            content = content
-        )
-        
-        messagesCollection.add(message).await()
-        updateLastActivity(coupleCode)
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
+    ): Result<Unit> {
+        return try {
+            val message = Message(
+                coupleCode = coupleCode,
+                senderId = senderId,
+                senderName = senderName,
+                type = Message.MessageType.NOTE,
+                content = content
+            )
+            
+            messagesCollection.add(message).await()
+            updateLastActivity(coupleCode)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     // Kalp atışı gönder (app kapalıyken de FCM ile gider)
     suspend fun sendHeartbeat(
         coupleCode: String,
         senderId: String
-    ): Result<Unit> = try {
-        val message = Message(
-            coupleCode = coupleCode,
-            senderId = senderId,
-            type = Message.MessageType.HEARTBEAT,
-            content = "💗 Kalp atışı gönderdi",
-            vibrationPattern = Message.VibrationPattern.HEARTBEAT
-        )
-        
-        messagesCollection.add(message).await()
-        updateLastActivity(coupleCode)
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
+    ): Result<Unit> {
+        return try {
+            val message = Message(
+                coupleCode = coupleCode,
+                senderId = senderId,
+                type = Message.MessageType.HEARTBEAT,
+                content = "💗 Kalp atışı gönderdi",
+                vibrationPattern = Message.VibrationPattern.HEARTBEAT
+            )
+            
+            messagesCollection.add(message).await()
+            updateLastActivity(coupleCode)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     // Mesajı okundu olarak işaretle
@@ -118,21 +124,23 @@ class CoupleRepository {
     private val couplesCollection = db.collection("couples")
     
     // Yeni çift oluştur
-    suspend fun createCouple(code: String, partner1Id: String, partner1Name: String): Result<Couple> = try {
-        val couple = Couple(
-            code = code,
-            partner1Id = partner1Id,
-            partner1Name = partner1Name
-        )
-        
-        couplesCollection.document(code).set(couple).await()
-        Result.success(couple)
-    } catch (e: Exception) {
-        Result.failure(e)
+    suspend fun createCouple(code: String, partner1Id: String, partner1Name: String): Result<Couple> {
+        return try {
+            val couple = Couple(
+                code = code,
+                partner1Id = partner1Id,
+                partner1Name = partner1Name
+            )
+            
+            couplesCollection.document(code).set(couple).await()
+            Result.success(couple)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     // Çifte katıl
-    suspend fun joinCouple(code: String, partner2Id: String, partner2Name: String): Result<Couple> = try {
+    suspend fun joinCouple(code: String, partner2Id: String, partner2Name: String): Result<Couple> {
         val doc = couplesCollection.document(code).get().await()
         
         if (!doc.exists()) {
@@ -151,13 +159,11 @@ class CoupleRepository {
             "partner2Name", partner2Name
         ).await()
         
-        Result.success(couple.copy(partner2Id = partner2Id, partner2Name = partner2Name))
-    } catch (e: Exception) {
-        Result.failure(e)
+        return Result.success(couple.copy(partner2Id = partner2Id, partner2Name = partner2Name))
     }
     
     // Çift bilgilerini getir
-    suspend fun getCouple(code: String): Result<Couple> = try {
+    suspend fun getCouple(code: String): Result<Couple> {
         val doc = couplesCollection.document(code).get().await()
         
         if (!doc.exists()) {
@@ -167,8 +173,6 @@ class CoupleRepository {
         val couple = doc.toObject(Couple::class.java)
             ?: return Result.failure(Exception("Veri hatası"))
         
-        Result.success(couple)
-    } catch (e: Exception) {
-        Result.failure(e)
+        return Result.success(couple)
     }
 }
