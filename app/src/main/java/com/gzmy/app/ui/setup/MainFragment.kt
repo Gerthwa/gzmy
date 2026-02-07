@@ -202,10 +202,10 @@ class MainFragment : Fragment() {
             return
         }
         
+        android.util.Log.d("Gzmy", "Listening for messages with coupleCode: $coupleCode")
+        
         db.collection("messages")
             .whereEqualTo("coupleCode", coupleCode)
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-            .limit(1)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     android.util.Log.e("Gzmy", "Listen error: ${error.message}")
@@ -213,21 +213,29 @@ class MainFragment : Fragment() {
                 }
                 
                 if (snapshot == null || snapshot.isEmpty) {
+                    android.util.Log.d("Gzmy", "No messages yet")
                     return@addSnapshotListener
                 }
                 
-                snapshot.documents.firstOrNull()?.toObject(Message::class.java)?.let { message ->
-                    if (message.senderId != userId) {
-                        when (message.type) {
-                            Message.MessageType.VIBRATION -> {
-                                message.vibrationPattern?.let { vibrate(it) }
-                                showReceivedMessage("${message.senderName} sana titreşim gönderdi! 💓")
-                            }
-                            Message.MessageType.NOTE -> {
-                                showReceivedMessage("${message.senderName}: ${message.content}")
-                            }
-                            else -> {}
+                android.util.Log.d("Gzmy", "Received ${snapshot.documents.size} messages")
+                
+                // Son mesajı al
+                val lastMessage = snapshot.documents
+                    .mapNotNull { it.toObject(Message::class.java) }
+                    .filter { it.senderId != userId }
+                    .maxByOrNull { it.timestamp?.toDate()?.time ?: 0 }
+                
+                lastMessage?.let { message ->
+                    android.util.Log.d("Gzmy", "New message from ${message.senderName}: ${message.content}")
+                    when (message.type) {
+                        Message.MessageType.VIBRATION -> {
+                            message.vibrationPattern?.let { vibrate(it) }
+                            showReceivedMessage("${message.senderName} sana titreşim gönderdi! 💓")
                         }
+                        Message.MessageType.NOTE -> {
+                            showReceivedMessage("${message.senderName}: ${message.content}")
+                        }
+                        else -> {}
                     }
                 }
             }
