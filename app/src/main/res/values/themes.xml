@@ -110,16 +110,16 @@
         <item name="strokeWidth">0dp</item>
     </style>
 
-    <!-- ── Section Title ── -->
+    <!-- ── Typography ── -->
 
-    <style name="TextAppearance.Gzmy.SectionTitle">
+    <style name="TextAppearance.Gzmy.SectionTitle" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">17sp</item>
         <item name="android:letterSpacing">0.01</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <style name="TextAppearance.Gzmy.Caption">
+    <style name="TextAppearance.Gzmy.Caption" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textColor">@color/text_tertiary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:letterSpacing">0.02</item>
