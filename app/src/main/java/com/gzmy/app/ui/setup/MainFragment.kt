@@ -1,6 +1,10 @@
 package com.gzmy.app.ui.setup
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -10,10 +14,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
+import com.gzmy.app.R
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.databinding.FragmentMainBinding
+import com.gzmy.app.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +38,11 @@ class MainFragment : Fragment() {
     private var coupleCode: String = ""
     private var userId: String = ""
     private var userName: String = ""
+    private var partnerName: String = ""
+
+    companion object {
+        const val CHANNEL_ID = "gzmy_channel"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,6 +61,8 @@ class MainFragment : Fragment() {
         userId = prefs.getString("user_id", "") ?: ""
         userName = prefs.getString("user_name", "") ?: ""
         
+        createNotificationChannel()
+        
         // Debug: Check values
         android.util.Log.d("Gzmy", "MainFragment loaded - coupleCode: '$coupleCode', userId: '$userId', userName: '$userName'")
         
@@ -62,9 +76,13 @@ class MainFragment : Fragment() {
             return
         }
         
-        // Update status text
-        binding.tvLastMessage.text = "Partnerinizi bekliyor... 💕"
+        // Partner adını al
+        loadPartnerName()
         
+        // Update status text
+        binding.tvLastMessage.text = "Partneriniz: $partnerName 💕"
+        
+        // Vibrator başlat
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = requireContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vibratorManager.defaultVibrator
@@ -79,6 +97,41 @@ class MainFragment : Fragment() {
         setupLogoutButton()
         
         listenForMessages()
+    }
+    
+    private fun loadPartnerName() {
+        db.collection("couples").document(coupleCode).get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    val couple = doc.toObject(com.gzmy.app.data.model.Couple::class.java)
+                    couple?.let {
+                        partnerName = if (it.partner1Id == userId) {
+                            it.partner2Name
+                        } else {
+                            it.partner1Name
+                        }
+                        if (partnerName.isNotEmpty()) {
+                            binding.tvLastMessage.text = "$partnerName ile bağlısınız 💕"
+                        }
+                    }
+                }
+            }
+    }
+    
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "gzmy Bildirimleri"
+            val descriptionText = "Partnerinden gelen mesajlar"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 500, 200, 500)
+            }
+            val notificationManager: NotificationManager =
+                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
     
     private fun setupVibrationButtons() {
@@ -155,7 +208,7 @@ class MainFragment : Fragment() {
                     )
                     db.collection("messages").add(message).await()
                 }
-                Toast.makeText(context, "Gönderildi! 💕", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "$patternLabel gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 android.util.Log.e("Gzmy", "Error: ${e.message}", e)
                 Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
@@ -188,7 +241,7 @@ class MainFragment : Fragment() {
                     )
                     db.collection("messages").add(message).await()
                 }
-                Toast.makeText(context, "Gönderildi! 💕", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Mesaj gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 android.util.Log.e("Gzmy", "Error sending note: ${e.message}", e)
                 Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
@@ -213,13 +266,10 @@ class MainFragment : Fragment() {
                 }
                 
                 if (snapshot == null || snapshot.isEmpty) {
-                    android.util.Log.d("Gzmy", "No messages yet")
                     return@addSnapshotListener
                 }
                 
-                android.util.Log.d("Gzmy", "Received ${snapshot.documents.size} messages")
-                
-                // Son mesajı al
+                // Son mesajı al (sadece karşıdan gelen)
                 val lastMessage = snapshot.documents
                     .mapNotNull { it.toObject(Message::class.java) }
                     .filter { it.senderId != userId }
@@ -227,12 +277,19 @@ class MainFragment : Fragment() {
                 
                 lastMessage?.let { message ->
                     android.util.Log.d("Gzmy", "New message from ${message.senderName}: ${message.content}")
+                    
+                    // Titreşim çal (UYGULAMA AÇIKKEN)
                     when (message.type) {
                         Message.MessageType.VIBRATION -> {
-                            message.vibrationPattern?.let { vibrate(it) }
+                            message.vibrationPattern?.let { 
+                                vibrate(it)
+                                showNotification("💓 ${message.senderName}", "Titreşim gönderdi!", message)
+                            }
                             showReceivedMessage("${message.senderName} sana titreşim gönderdi! 💓")
                         }
                         Message.MessageType.NOTE -> {
+                            vibrateGentle()
+                            showNotification("💌 ${message.senderName}", message.content, message)
                             showReceivedMessage("${message.senderName}: ${message.content}")
                         }
                         else -> {}
@@ -243,36 +300,56 @@ class MainFragment : Fragment() {
     
     private fun vibrate(pattern: Message.VibrationPattern) {
         when (pattern) {
-            Message.VibrationPattern.GENTLE -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(200)
-                }
-            }
-            Message.VibrationPattern.HEARTBEAT -> {
-                val pattern = longArrayOf(0, 100, 100, 100, 200, 100, 100)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(pattern, -1)
-                }
-            }
-            Message.VibrationPattern.INTENSE -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(800, 255))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(800)
-                }
-            }
+            Message.VibrationPattern.GENTLE -> vibrateDevice(longArrayOf(0, 200))
+            Message.VibrationPattern.HEARTBEAT -> vibrateDevice(longArrayOf(0, 100, 100, 100, 200, 100, 100))
+            Message.VibrationPattern.INTENSE -> vibrateDevice(longArrayOf(0, 800))
         }
     }
     
-    private fun showReceivedMessage(message: String) {
-        binding.tvLastMessage.text = message
+    private fun vibrateGentle() {
+        vibrateDevice(longArrayOf(0, 200))
+    }
+    
+    private fun vibrateDevice(pattern: LongArray) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(pattern, -1)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("Gzmy", "Vibration error: ${e.message}")
+        }
+    }
+    
+    private fun showNotification(title: String, body: String, message: Message) {
+        val intent = Intent(requireContext(), MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        
+        val pendingIntent = PendingIntent.getActivity(
+            requireContext(),
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        val builder = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_heart)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setVibrate(longArrayOf(0, 500, 200, 500))
+        
+        val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
+    }
+    
+    private fun showReceivedMessage(messageText: String) {
+        binding.tvLastMessage.text = messageText
         binding.tvLastMessage.visibility = View.VISIBLE
     }
     
