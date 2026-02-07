@@ -174,6 +174,31 @@ class SetupFragment : Fragment() {
             putString("user_name", name)
             apply()
         }
+        
+        // FCM token'ı Firestore'a kaydet
+        saveTokenToFirestore(userId)
+    }
+    
+    private fun saveTokenToFirestore(userId: String) {
+        // SharedPreferences'tan FCM token'ı al
+        val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
+        val fcmToken = prefs.getString("fcm_token", null)
+        
+        if (fcmToken != null) {
+            db.collection("tokens").document(userId)
+                .set(mapOf(
+                    "fcmToken" to fcmToken,
+                    "lastUpdated" to Timestamp.now()
+                ))
+                .addOnSuccessListener {
+                    android.util.Log.d("Gzmy", "FCM token saved successfully")
+                }
+                .addOnFailureListener { e ->
+                    android.util.Log.e("Gzmy", "Failed to save FCM token: ${e.message}")
+                }
+        } else {
+            android.util.Log.w("Gzmy", "FCM token not available yet, will retry on next launch")
+        }
     }
     
     private fun showCodeCreated(code: String) {

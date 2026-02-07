@@ -76,8 +76,9 @@ class MainFragment : Fragment() {
             return
         }
         
-        // Partner adını al
+        // Partner adını al ve FCM token'ı kaydet
         loadPartnerName()
+        saveTokenToFirestore()
         
         // Update status text
         binding.tvLastMessage.text = "Partneriniz: $partnerName 💕"
@@ -116,6 +117,25 @@ class MainFragment : Fragment() {
                     }
                 }
             }
+    }
+    
+    private fun saveTokenToFirestore() {
+        val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
+        val fcmToken = prefs.getString("fcm_token", null)
+        
+        if (fcmToken != null && userId.isNotEmpty()) {
+            db.collection("tokens").document(userId)
+                .set(mapOf(
+                    "fcmToken" to fcmToken,
+                    "lastUpdated" to Timestamp.now()
+                ))
+                .addOnSuccessListener {
+                    android.util.Log.d("Gzmy", "FCM token saved to Firestore")
+                }
+                .addOnFailureListener { e ->
+                    android.util.Log.e("Gzmy", "Failed to save FCM token: ${e.message}")
+                }
+        }
     }
     
     private fun createNotificationChannel() {
