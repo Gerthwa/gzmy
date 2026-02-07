@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary_pink">#FF4081</color>
+    <color name="primary_pink_dark">#F50057</color>
+    
+    <!-- Secondary Colors -->
+    <color name="secondary_purple">#7C4DFF</color>
+    
+    <!-- Background Colors -->
+    <color name="background_dark">#121212</color>
+    <color name="card_background">#1E1E1E</color>
+    
+    <!-- Basic Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#9E9E9E</color>
+    <color name="black">#000000</color>
+</resources>
