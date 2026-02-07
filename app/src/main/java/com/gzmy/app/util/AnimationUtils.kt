@@ -54,13 +54,16 @@ object AnimationUtils {
      * Heartbeat pulse: alternating scale animation.
      */
     fun pulseForever(view: View, minScale: Float = 0.95f, maxScale: Float = 1.08f, duration: Long = 1200L) {
-        val scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, minScale, maxScale, minScale)
-        val scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, minScale, maxScale, minScale)
+        val scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, minScale, maxScale, minScale).apply {
+            repeatCount = ObjectAnimator.INFINITE
+        }
+        val scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, minScale, maxScale, minScale).apply {
+            repeatCount = ObjectAnimator.INFINITE
+        }
         AnimatorSet().apply {
             playTogether(scaleX, scaleY)
             this.duration = duration
             this.interpolator = AccelerateDecelerateInterpolator()
-            repeatCount = ObjectAnimator.INFINITE
             start()
         }
     }
