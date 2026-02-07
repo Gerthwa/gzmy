@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -20,17 +21,16 @@ class FCMService : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "FCMService"
+        private const val WAKELOCK_TIMEOUT = 10_000L // 10 saniye
     }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "Yeni FCM token alındı")
 
-        // Token'ı SharedPreferences'a kaydet
         val prefs = getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("fcm_token", token).apply()
 
-        // Firestore'a gönder
         val userId = prefs.getString("user_id", null)
         if (userId != null) {
             com.google.firebase.firestore.FirebaseFirestore.getInstance()
@@ -49,28 +49,52 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        Log.d(TAG, "Mesaj alındı, data keys: ${remoteMessage.data.keys}")
 
-        // Data-only payload: tüm bilgi data map'inde
-        val data = remoteMessage.data
-        val type = data["type"] ?: "note"
-        val vibrationPattern = data["vibrationPattern"] ?: "gentle"
-        val title = data["title"] ?: "gzmy"
-        val body = data["body"] ?: "Yeni mesaj!"
+        // WakeLock al: CPU'nun uyanık kalmasını sağla (uygulama kapalıyken kritik)
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "gzmy:FCMWakeLock"
+        )
+        wakeLock.acquire(WAKELOCK_TIMEOUT)
 
-        // Titreşim çal (uygulama kapalıyken bile çalışır)
         try {
-            when (type) {
-                "vibration" -> vibrate(vibrationPattern)
-                "heartbeat" -> vibrateHeartbeat()
-                "note" -> vibrateGentle()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Titreşim hatası: ${e.message}")
-        }
+            Log.d(TAG, "=== MESAJ ALINDI ===")
+            Log.d(TAG, "Data: ${remoteMessage.data}")
+            Log.d(TAG, "Notification: ${remoteMessage.notification}")
 
-        // Bildirim göster
-        showNotification(title, body, data)
+            val data = remoteMessage.data
+
+            // Cloud Function küçük harf gönderir, ama güvenlik için lowercase'e çevir
+            val type = (data["type"] ?: "note").lowercase()
+            val vibrationPattern = (data["vibrationPattern"] ?: "gentle").lowercase()
+            val title = data["title"] ?: "gzmy"
+            val body = data["body"] ?: "Yeni mesaj!"
+
+            Log.d(TAG, "İşlenecek: type=$type, pattern=$vibrationPattern, title=$title")
+
+            // Titreşim çal
+            try {
+                when (type) {
+                    "vibration" -> vibrate(vibrationPattern)
+                    "heartbeat" -> vibrateHeartbeat()
+                    "note" -> vibrateGentle()
+                    else -> vibrateGentle()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Titreşim hatası: ${e.message}")
+            }
+
+            // Bildirim göster
+            showNotification(title, body, data)
+            Log.d(TAG, "=== BİLDİRİM GÖSTERİLDİ ===")
+
+        } finally {
+            // WakeLock'u serbest bırak
+            if (wakeLock.isHeld) {
+                wakeLock.release()
+            }
+        }
     }
 
     // --- Vibrator Helper (API 31+ uyumlu) ---
@@ -145,12 +169,13 @@ class FCMService : FirebaseMessagingService() {
             .setSmallIcon(R.drawable.ic_heart)
             .setContentTitle(title)
             .setContentText(body)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setVibrate(longArrayOf(0, 100, 100, 100))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setDefaults(NotificationCompat.DEFAULT_SOUND)
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

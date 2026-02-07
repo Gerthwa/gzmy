@@ -12,7 +12,12 @@ exports.sendNotification = functions.firestore
     const message = snap.data();
     const { coupleCode, senderId, senderName, type, content, vibrationPattern } = message;
     
-    console.log('Yeni mesaj:', { coupleCode, senderId, type });
+    // Kotlin enum'lar Firestore'a BÜYÜK HARF olarak yazılır (VIBRATION, NOTE, HEARTBEAT)
+    // Tüm karşılaştırmalar için küçük harfe çevir
+    const typeLower = (type || 'note').toLowerCase();
+    const vibPatternLower = (vibrationPattern || 'gentle').toLowerCase();
+    
+    console.log('Yeni mesaj:', { coupleCode, senderId, type: typeLower, vibrationPattern: vibPatternLower });
     
     try {
       // Çift bilgilerini al
@@ -54,14 +59,14 @@ exports.sendNotification = functions.firestore
       
       const { fcmToken } = tokenDoc.data();
       
-      // Bildirim içeriğini hazırla
+      // Bildirim içeriğini hazırla (küçük harfe çevrilmiş type kullan)
       let title, body, pattern;
       
-      switch (type) {
+      switch (typeLower) {
         case 'vibration':
           title = `💓 ${senderName || 'Partnerin'}`;
           body = 'Sana bir titreşim gönderdi!';
-          pattern = vibrationPattern || 'gentle';
+          pattern = vibPatternLower || 'gentle';
           break;
         
         case 'heartbeat':
@@ -72,12 +77,12 @@ exports.sendNotification = functions.firestore
         
         case 'note':
           title = `💌 ${senderName || 'Partnerin'}`;
-          body = content.length > 100 ? content.substring(0, 97) + '...' : content;
+          body = (content && content.length > 100) ? content.substring(0, 97) + '...' : (content || 'Yeni mesaj!');
           pattern = 'gentle';
           break;
         
         default:
-          title = 'gzmy';
+          title = `💕 ${senderName || 'Partnerin'}`;
           body = 'Yeni mesaj!';
           pattern = 'gentle';
       }
@@ -112,7 +117,7 @@ exports.sendNotification = functions.firestore
         data: {
           title: title,
           body: body,
-          type: type || 'note',
+          type: typeLower,
           vibrationPattern: pattern,
           senderId: senderId || '',
           senderName: senderName || 'Partnerin',
@@ -168,17 +173,15 @@ exports.sendNotification = functions.firestore
  * Titreşim pattern'ini döndür
  */
 function getVibrationPattern(pattern) {
+  // pattern zaten küçük harfe çevrilmiş olarak gelir
   switch (pattern) {
     case 'gentle':
-      // Yumuşak - 200ms
       return [0, 200];
     
     case 'heartbeat':
-      // Kalp atışı - tik-tik-tok
       return [0, 100, 100, 100, 300, 200];
     
     case 'intense':
-      // Yoğun - 500ms
       return [0, 500];
     
     default:
