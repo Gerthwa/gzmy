@@ -2,7 +2,10 @@ package com.gzmy.app.ui.main
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.gzmy.app.R
 import com.gzmy.app.databinding.ActivityMainBinding
+import com.gzmy.app.ui.setup.MainFragment
+import com.gzmy.app.ui.setup.SetupFragment
 
 class MainActivity : AppCompatActivity() {
     
@@ -13,8 +16,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        // İlk kurulum kontrolü
-        checkFirstSetup()
+        if (savedInstanceState == null) {
+            checkFirstSetup()
+        }
     }
     
     private fun checkFirstSetup() {
@@ -22,16 +26,14 @@ class MainActivity : AppCompatActivity() {
         val coupleCode = prefs.getString("couple_code", null)
         val userId = prefs.getString("user_id", null)
         
-        if (coupleCode == null || userId == null) {
-            // Setup ekranına yönlendir
-            // supportFragmentManager.beginTransaction()
-            //     .replace(R.id.container, SetupFragment())
-            //     .commit()
+        val fragment = if (coupleCode == null || userId == null) {
+            SetupFragment()
         } else {
-            // Ana ekranı göster
-            // supportFragmentManager.beginTransaction()
-            //     .replace(R.id.container, GzmyFragment())
-            //     .commit()
+            MainFragment()
         }
+        
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, fragment)
+            .commit()
     }
 }
