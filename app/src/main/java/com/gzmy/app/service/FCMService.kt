@@ -2,8 +2,6 @@ package com.gzmy.app.service
 
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
@@ -162,24 +160,14 @@ class FCMService : FirebaseMessagingService() {
         notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
     }
 
-    /** ÖZELLİK 5: Widget güncelleme */
+    /** Widget güncelleme — SharedPrefs'e yaz + broadcast tetikle */
     private fun updateWidget(lastMessage: String) {
         try {
-            val prefs = getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
-            prefs.edit().putString("last_message", lastMessage).apply()
+            getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
+                .edit().putString("last_message", lastMessage).apply()
 
-            val widgetManager = AppWidgetManager.getInstance(this)
-            val widgetComponent = ComponentName(this, GzmyWidgetProvider::class.java)
-            val widgetIds = widgetManager.getAppWidgetIds(widgetComponent)
-
-            if (widgetIds.isNotEmpty()) {
-                val updateIntent = Intent(this, GzmyWidgetProvider::class.java).apply {
-                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-                }
-                sendBroadcast(updateIntent)
-                Log.d(TAG, "Widget güncelleme broadcast'i gönderildi (${widgetIds.size} widget)")
-            }
+            GzmyWidgetProvider.triggerUpdate(this)
+            Log.d(TAG, "Widget güncelleme tetiklendi")
         } catch (e: Exception) {
             Log.e(TAG, "Widget güncelleme hatası: ${e.message}")
         }

@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
+import com.gzmy.app.data.LiveStatusManager
 import com.gzmy.app.data.model.Couple
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.databinding.FragmentMainBinding
@@ -46,9 +47,34 @@ class MainFragment : Fragment() {
 
     // Slider debounce
     private var sliderWriteJob: Job? = null
-    private var coupleListener: ListenerRegistration? = null
     private var messagesListener: ListenerRegistration? = null
     private var isUpdatingFromRemote = false
+
+    /** LiveStatusManager observer — receives real-time couple updates */
+    private val coupleObserver = object : LiveStatusManager.StatusObserver {
+        override fun onCoupleUpdated(couple: Couple, myLevel: Int, partnerLevel: Int, partnerName: String) {
+            if (_binding == null) return
+
+            // Partner miss level UI
+            val partnerEmoji = when {
+                partnerLevel < 20 -> "🤍"
+                partnerLevel < 40 -> "💛"
+                partnerLevel < 60 -> "🧡"
+                partnerLevel < 80 -> "❤️"
+                else -> "❤️‍🔥"
+            }
+            val pName = partnerName.ifEmpty { "Partner" }
+            binding.tvPartnerMissLevel.text = "$pName: $partnerEmoji $partnerLevel"
+
+            // Sync my slider from remote (only if I didn't change it)
+            isUpdatingFromRemote = true
+            if (binding.sliderMissYou.value.toInt() != myLevel) {
+                binding.sliderMissYou.value = myLevel.toFloat()
+                updateMissYouLabel(myLevel)
+            }
+            isUpdatingFromRemote = false
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -157,54 +183,13 @@ class MainFragment : Fragment() {
     }
 
     private fun writeMissYouLevel(level: Int) {
-        if (coupleCode.isEmpty() || userId.isEmpty()) return
-
-        db.collection("couples").document(coupleCode)
-            .update("missYouLevel.$userId", level)
-            .addOnSuccessListener { Log.d("Gzmy", "MissYou level yazıldı: $level") }
-            .addOnFailureListener { e -> Log.e("Gzmy", "MissYou yazma hatası: ${e.message}") }
+        LiveStatusManager.writeMissLevel(requireContext(), level)
     }
 
-    /** Firestore'dan couple dokümanını dinle (partner slider + missYou) */
+    /** LiveStatusManager üzerinden couple dokümanını dinle */
     private fun listenForCoupleUpdates() {
-        if (coupleCode.isEmpty()) return
-
-        coupleListener = db.collection("couples").document(coupleCode)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
-
-                val couple = snapshot.toObject(Couple::class.java) ?: return@addSnapshotListener
-
-                // Partner'ın ID'sini bul
-                val partnerId = if (couple.partner1Id == userId) couple.partner2Id else couple.partner1Id
-                val partnerLevel = couple.missYouLevel[partnerId] ?: 0
-                val myLevel = couple.missYouLevel[userId] ?: 0
-
-                if (_binding == null) return@addSnapshotListener
-
-                // Partner seviyesini göster
-                val partnerEmoji = when {
-                    partnerLevel < 20 -> "🤍"
-                    partnerLevel < 40 -> "💛"
-                    partnerLevel < 60 -> "🧡"
-                    partnerLevel < 80 -> "❤️"
-                    else -> "❤️‍🔥"
-                }
-                val pName = if (partnerName.isNotEmpty()) partnerName else "Partner"
-                binding.tvPartnerMissLevel.text = "$pName: $partnerEmoji $partnerLevel"
-
-                // Widget'a yaz (partner seviyesini gösteriyoruz)
-                requireContext().getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
-                    .edit().putInt("miss_level", partnerLevel).apply()
-
-                // Kendi slider'ımızı remote'dan güncelle (sadece biz değiştirmediyse)
-                isUpdatingFromRemote = true
-                if (binding.sliderMissYou.value.toInt() != myLevel) {
-                    binding.sliderMissYou.value = myLevel.toFloat()
-                    updateMissYouLabel(myLevel)
-                }
-                isUpdatingFromRemote = false
-            }
+        LiveStatusManager.addObserver(coupleObserver)
+        LiveStatusManager.start(requireContext())
     }
 
     // =============== ÖZELLİK 2: CHAT BUTONU ===============
@@ -492,6 +477,9 @@ class MainFragment : Fragment() {
     }
 
     private fun logout() {
+        LiveStatusManager.reset()
+        com.gzmy.app.widget.WidgetUpdateWorker.cancel(requireContext())
+
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
 
@@ -502,7 +490,8 @@ class MainFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        coupleListener?.remove()
+        LiveStatusManager.removeObserver(coupleObserver)
+        LiveStatusManager.stop()
         messagesListener?.remove()
         sliderWriteJob?.cancel()
         context?.let {

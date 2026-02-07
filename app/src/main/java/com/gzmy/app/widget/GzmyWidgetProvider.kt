@@ -3,6 +3,7 @@ package com.gzmy.app.widget
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -14,6 +15,22 @@ class GzmyWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val TAG = "GzmyWidget"
+
+        /**
+         * Trigger an immediate widget refresh from anywhere (e.g. FCMService, LiveStatusManager).
+         */
+        fun triggerUpdate(context: Context) {
+            val manager = AppWidgetManager.getInstance(context)
+            val component = ComponentName(context, GzmyWidgetProvider::class.java)
+            val ids = manager.getAppWidgetIds(component)
+            if (ids.isNotEmpty()) {
+                val intent = Intent(context, GzmyWidgetProvider::class.java).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                }
+                context.sendBroadcast(intent)
+            }
+        }
     }
 
     override fun onUpdate(
@@ -28,10 +45,13 @@ class GzmyWidgetProvider : AppWidgetProvider() {
 
     override fun onEnabled(context: Context) {
         Log.d(TAG, "Widget etkinleştirildi")
+        // Ensure WorkManager is scheduled when first widget is placed
+        WidgetUpdateWorker.schedule(context)
     }
 
     override fun onDisabled(context: Context) {
-        Log.d(TAG, "Widget devre dışı bırakıldı")
+        Log.d(TAG, "Widget devre dışı bırakıldı — tüm widget'lar kaldırıldı")
+        WidgetUpdateWorker.cancel(context)
     }
 
     private fun updateAppWidget(
@@ -42,14 +62,20 @@ class GzmyWidgetProvider : AppWidgetProvider() {
         val prefs = context.getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
         val lastMessage = prefs.getString("last_message", "Henüz mesaj yok") ?: "Henüz mesaj yok"
         val missLevel = prefs.getInt("miss_level", -1)
+        val partnerName = prefs.getString("partner_name", "") ?: ""
 
         val views = RemoteViews(context.packageName, R.layout.widget_gzmy)
 
-        // Son mesajı göster
+        // Partner ismi
+        if (partnerName.isNotEmpty()) {
+            views.setTextViewText(R.id.tvWidgetPartnerName, "💕 $partnerName")
+        }
+
+        // Son mesaj / not
         views.setTextViewText(R.id.tvWidgetLastMessage, lastMessage)
 
-        // Özlem seviyesini göster
-        val missText = if (missLevel >= 0) {
+        // Özlem seviyesi: emoji text + ProgressBar
+        if (missLevel >= 0) {
             val emoji = when {
                 missLevel < 20 -> "🤍"
                 missLevel < 40 -> "💛"
@@ -57,11 +83,12 @@ class GzmyWidgetProvider : AppWidgetProvider() {
                 missLevel < 80 -> "❤️"
                 else -> "❤️‍🔥"
             }
-            "$emoji $missLevel / 100"
+            views.setTextViewText(R.id.tvWidgetMissLevel, "$emoji $missLevel")
+            views.setProgressBar(R.id.progressWidgetMiss, 100, missLevel, false)
         } else {
-            "—"
+            views.setTextViewText(R.id.tvWidgetMissLevel, "—")
+            views.setProgressBar(R.id.progressWidgetMiss, 100, 0, false)
         }
-        views.setTextViewText(R.id.tvWidgetMissLevel, missText)
 
         // Widget'a tıklayınca uygulamayı aç
         val intent = Intent(context, MainActivity::class.java)
@@ -72,6 +99,6 @@ class GzmyWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.widgetRoot, pendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
-        Log.d(TAG, "Widget güncellendi: msg='$lastMessage', miss=$missLevel")
+        Log.d(TAG, "Widget güncellendi: partner='$partnerName', msg='$lastMessage', miss=$missLevel")
     }
 }
