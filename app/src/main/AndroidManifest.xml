@@ -51,7 +51,7 @@
         <!-- ÖZELLİK 5: Ana Ekran Widget'ı -->
         <receiver
             android:name=".widget.GzmyWidgetProvider"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

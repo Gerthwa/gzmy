@@ -2,8 +2,6 @@ package com.gzmy.app.ui.setup
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,7 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -28,7 +25,6 @@ import com.gzmy.app.data.model.Couple
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.databinding.FragmentMainBinding
 import com.gzmy.app.ui.chat.ChatFragment
-import com.gzmy.app.ui.main.MainActivity
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
