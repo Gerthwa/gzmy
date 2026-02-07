@@ -146,7 +146,8 @@
                     android:textStyle="bold"
                     android:letterSpacing="0.2"
                     android:background="@drawable/bg_code"
-                    android:padding="16dp 32dp"
+                    android:paddingHorizontal="32dp"
+                    android:paddingVertical="16dp"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButton
