@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">gzmy</string>
+    
+    <!-- Ana Ekran -->
+    <string name="send_vibration">Titreşim Gönder</string>
+    <string name="send_note">💌 Not Gönder</string>
+    <string name="quick_emojis">Hızlı Emoji</string>
+    <string name="type_note">Özel not yaz...</string>
+    
+    <!-- Titreşim Türleri -->
+    <string name="vibration_gentle">Yumuşak</string>
+    <string name="vibration_heartbeat">Kalp Atışı</string>
+    <string name="vibration_intense">Yoğun</string>
+    
+    <!-- Partner Durumu -->
+    <string name="partner_online">Partnerin çevrimiçi 🟢</string>
+    <string name="partner_offline">Partnerin çevrimdışı ⚫</string>
+    <string name="no_messages">Henüz mesaj yok</string>
+    
+    <!-- Kurulum Ekranı -->
+    <string name="welcome">Hoş Geldiniz 💕</string>
+    <string name="create_couple">Yeni Çift Oluştur</string>
+    <string name="join_couple">Çifte Katıl</string>
+    <string name="enter_code">Kodu Girin</string>
+    <string name="your_name">Adınız</string>
+    <string name="partner_name">Partnerinin Adı</string>
+    <string name="couple_code">Çift Kodu</string>
+    <string name="share_code">Bu kodu partnerinle paylaş:</string>
+    <string name="continue_button">Devam Et</string>
+    <string name="code_copied">Kod kopyalandı!</string>
+    
+    <!-- Bildirimler -->
+    <string name="notification_channel_name">gzmy</string>
+    <string name="notification_channel_description">Sevgilinden gelen titreşim ve mesajlar</string>
+    <string name="vibration_received">Sana bir kalp atışı gönderdi! 💓</string>
+    <string name="note_received">Sana bir not gönderdi 💌</string>
+    
+    <!-- Mesajlar -->
+    <string name="message_sent">Gönderildi! 💕</string>
+    <string name="message_error">Gönderilemedi. Tekrar dene.</string>
+    <string name="couple_created">Çift oluşturuldu! 💕</string>
+    <string name="joined_couple">Çifte katıldın! 💕</string>
+    <string name="error_generic">Bir hata oluştu. Tekrar dene.</string>
+    <string name="error_couple_not_found">Çift bulunamadı. Kodu kontrol et.</string>
+    <string name="error_couple_full">Bu çift zaten dolu.</string>
+    
+    <!-- Hakkında -->
+    <string name="about_title">gzmy Hakkında</string>
+    <string name="about_description">Sen ve sevgilin için özel yapılmış minimal bir couple app.\n\nUygulama kapalıyken bile titreşim gönderebilirsiniz.</string>
+    <string name="version">Versiyon 1.0.0</string>
+    
+    <!-- Ayarlar -->
+    <string name="settings">Ayarlar</string>
+    <string name="notifications">Bildirimler</string>
+    <string name="vibration">Titreşim</string>
+    <string name="sound">Ses</string>
+    <string name="logout">Çıkış Yap</string>
+    <string name="logout_confirm">Çıkış yapmak istediğine emin misin?</string>
+</resources>
