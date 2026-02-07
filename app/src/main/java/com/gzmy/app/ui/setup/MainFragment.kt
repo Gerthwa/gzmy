@@ -107,7 +107,7 @@ class MainFragment : Fragment() {
         binding.tvMissYouValue.text = "🤍 0"
 
         binding.sliderMissYou.addOnChangeListener { _, value, fromUser ->
-            if (!fromUser) return@addOnChangeListener
+            if (!fromUser || isUpdatingFromRemote) return@addOnChangeListener
 
             val level = value.toInt()
             updateMissYouLabel(level)
@@ -462,7 +462,10 @@ class MainFragment : Fragment() {
         coupleListener?.remove()
         messagesListener?.remove()
         sliderWriteJob?.cancel()
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(newMessageReceiver)
+        context?.let {
+            try { LocalBroadcastManager.getInstance(it).unregisterReceiver(newMessageReceiver) }
+            catch (_: Exception) { /* receiver zaten kayıtlı değildi */ }
+        }
         _binding = null
         super.onDestroyView()
     }

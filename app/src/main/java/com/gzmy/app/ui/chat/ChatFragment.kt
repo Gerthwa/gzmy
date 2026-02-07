@@ -182,17 +182,19 @@ class ChatFragment : Fragment() {
 
     /** Foreground'da FCMService'ten gelen broadcast */
     private val newMessageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+        override fun onReceive(ctx: Context?, intent: Intent?) {
             // SnapshotListener zaten mesajları güncelliyor,
-            // burada ek bir şey yapmamıza gerek yok — ama isterseniz
-            // küçük bir haptic feedback verebilirsiniz
-            VibrationManager.performLightTap(requireContext())
+            // burada sadece hafif haptic feedback veriyoruz
+            ctx?.let { VibrationManager.performLightTap(it) }
         }
     }
 
     override fun onDestroyView() {
         chatListener?.remove()
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(newMessageReceiver)
+        context?.let {
+            try { LocalBroadcastManager.getInstance(it).unregisterReceiver(newMessageReceiver) }
+            catch (_: Exception) { /* receiver zaten kayıtlı değildi */ }
+        }
         _binding = null
         super.onDestroyView()
     }

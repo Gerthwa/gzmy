@@ -19,6 +19,15 @@ class ChatAdapter(
     companion object {
         private const val VIEW_TYPE_SENT = 1
         private const val VIEW_TYPE_RECEIVED = 2
+        private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        fun formatTime(message: Message): String {
+            return try {
+                timeFormat.format(message.timestamp.toDate())
+            } catch (e: Exception) {
+                ""
+            }
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -68,15 +77,5 @@ class ChatAdapter(
     class ChatDiffCallback : DiffUtil.ItemCallback<Message>() {
         override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean = oldItem.id == newItem.id
         override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean = oldItem == newItem
-    }
-}
-
-private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-
-private fun formatTime(message: Message): String {
-    return try {
-        timeFormat.format(message.timestamp.toDate())
-    } catch (e: Exception) {
-        ""
     }
 }
