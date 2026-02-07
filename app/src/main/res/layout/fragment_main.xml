@@ -44,7 +44,7 @@
             android:id="@+id/tvLastMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Partnerin çevrimdışı ⚫"
+            android:text="Bağlanıyor..."
             android:textColor="@color/gray"
             android:textSize="14sp"
             android:gravity="center"

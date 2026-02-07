@@ -28,9 +28,9 @@ class MainFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val scope = CoroutineScope(Dispatchers.Main)
     private lateinit var vibrator: Vibrator
-    private lateinit var coupleCode: String
-    private lateinit var userId: String
-    private lateinit var userName: String
+    private var coupleCode: String = ""
+    private var userId: String = ""
+    private var userName: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +48,22 @@ class MainFragment : Fragment() {
         coupleCode = prefs.getString("couple_code", "") ?: ""
         userId = prefs.getString("user_id", "") ?: ""
         userName = prefs.getString("user_name", "") ?: ""
+        
+        // Debug: Check values
+        android.util.Log.d("Gzmy", "MainFragment loaded - coupleCode: '$coupleCode', userId: '$userId', userName: '$userName'")
+        
+        // Eğer değerler boşsa setup'a geri dön
+        if (coupleCode.isEmpty() || userId.isEmpty()) {
+            android.util.Log.e("Gzmy", "Missing user data, returning to setup")
+            Toast.makeText(context, "Oturum bilgileri eksik, lütfen tekrar giriş yapın", Toast.LENGTH_LONG).show()
+            parentFragmentManager.beginTransaction()
+                .replace(com.gzmy.app.R.id.container, SetupFragment())
+                .commit()
+            return
+        }
+        
+        // Update status text
+        binding.tvLastMessage.text = "Partnerinizi bekliyor... 💕"
         
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = requireContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -116,7 +132,13 @@ class MainFragment : Fragment() {
             Message.VibrationPattern.INTENSE -> "Yoğun titreşim"
         }
         
-        android.util.Log.d("Gzmy", "Sending vibration: $patternLabel, coupleCode: $coupleCode, userId: $userId")
+        // Check if coupleCode is valid
+        if (coupleCode.isEmpty()) {
+            Toast.makeText(context, "Hata: Çift kodu bulunamadı", Toast.LENGTH_LONG).show()
+            return
+        }
+        
+        Toast.makeText(context, "Gönderiliyor...", Toast.LENGTH_SHORT).show()
         
         scope.launch {
             try {
@@ -131,13 +153,11 @@ class MainFragment : Fragment() {
                         content = "$patternLabel gönderdi",
                         timestamp = Timestamp.now()
                     )
-                    android.util.Log.d("Gzmy", "Saving message to Firestore...")
                     db.collection("messages").add(message).await()
-                    android.util.Log.d("Gzmy", "Message saved successfully!")
                 }
                 Toast.makeText(context, "Gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                android.util.Log.e("Gzmy", "Error sending vibration: ${e.message}", e)
+                android.util.Log.e("Gzmy", "Error: ${e.message}", e)
                 Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
@@ -148,6 +168,12 @@ class MainFragment : Fragment() {
     }
     
     private fun sendNote(content: String) {
+        // Check if coupleCode is valid
+        if (coupleCode.isEmpty()) {
+            Toast.makeText(context, "Hata: Çift kodu bulunamadı", Toast.LENGTH_LONG).show()
+            return
+        }
+        
         scope.launch {
             try {
                 withContext(Dispatchers.IO) {
@@ -164,18 +190,31 @@ class MainFragment : Fragment() {
                 }
                 Toast.makeText(context, "Gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                android.util.Log.e("Gzmy", "Error sending note: ${e.message}", e)
+                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
     
     private fun listenForMessages() {
+        if (coupleCode.isEmpty()) {
+            android.util.Log.e("Gzmy", "Cannot listen for messages: coupleCode is empty")
+            return
+        }
+        
         db.collection("messages")
             .whereEqualTo("coupleCode", coupleCode)
             .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
             .limit(1)
             .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null) return@addSnapshotListener
+                if (error != null) {
+                    android.util.Log.e("Gzmy", "Listen error: ${error.message}")
+                    return@addSnapshotListener
+                }
+                
+                if (snapshot == null || snapshot.isEmpty) {
+                    return@addSnapshotListener
+                }
                 
                 snapshot.documents.firstOrNull()?.toObject(Message::class.java)?.let { message ->
                     if (message.senderId != userId) {
