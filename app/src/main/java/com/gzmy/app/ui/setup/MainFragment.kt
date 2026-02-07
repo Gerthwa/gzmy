@@ -116,6 +116,8 @@ class MainFragment : Fragment() {
             Message.VibrationPattern.INTENSE -> "Yoğun titreşim"
         }
         
+        android.util.Log.d("Gzmy", "Sending vibration: $patternLabel, coupleCode: $coupleCode, userId: $userId")
+        
         scope.launch {
             try {
                 withContext(Dispatchers.IO) {
@@ -129,11 +131,14 @@ class MainFragment : Fragment() {
                         content = "$patternLabel gönderdi",
                         timestamp = Timestamp.now()
                     )
+                    android.util.Log.d("Gzmy", "Saving message to Firestore...")
                     db.collection("messages").add(message).await()
+                    android.util.Log.d("Gzmy", "Message saved successfully!")
                 }
                 Toast.makeText(context, "Gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                android.util.Log.e("Gzmy", "Error sending vibration: ${e.message}", e)
+                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
