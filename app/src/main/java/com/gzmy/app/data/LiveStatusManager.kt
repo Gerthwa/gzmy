@@ -113,21 +113,17 @@ object LiveStatusManager {
                     }
                 }
 
-                // Parse latest drawing URL
-                val drawingUrl = snapshot.getString("latestDrawingUrl")
-                if (!drawingUrl.isNullOrEmpty()) {
-                    context.getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
-                        .edit()
-                        .putString("drawing_url", drawingUrl)
-                        .apply()
-                }
-
-                // Write to widget shared prefs
-                context.getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
-                    .edit()
+                // Write all widget data in a single edit
+                val widgetPrefs = context.getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE).edit()
                     .putInt("miss_level", partnerMissLevel)
                     .putString("partner_name", pName)
-                    .apply()
+
+                val drawingUrl = snapshot.getString("latestDrawingUrl")
+                if (!drawingUrl.isNullOrEmpty()) {
+                    widgetPrefs.putString("drawing_url", drawingUrl)
+                }
+
+                widgetPrefs.apply()
 
                 Log.d(TAG, "Couple updated: myLevel=$myMissLevel, partnerLevel=$partnerMissLevel")
 

@@ -82,6 +82,10 @@ data class PointStroke(
     val width: Float = 6f
 )
 
+/** Track canvas size for bitmap scaling */
+private var canvasWidth = 0f
+private var canvasHeight = 0f
+
 @Composable
 fun DrawingScreen(onBack: () -> Unit) {
     val context = LocalContext.current
@@ -159,6 +163,10 @@ fun DrawingScreen(onBack: () -> Unit) {
                         )
                     }
             ) {
+                // Record canvas size for bitmap scaling
+                canvasWidth = size.width
+                canvasHeight = size.height
+
                 for (stroke in strokes) {
                     if (stroke.points.size < 2) continue
                     val path = Path()
@@ -315,22 +323,24 @@ private fun uploadDrawing(
             val canvas = android.graphics.Canvas(bitmap)
             canvas.drawColor(android.graphics.Color.WHITE)
 
-            // We need to scale from compose canvas coordinates to 512x512
-            // We'll just draw directly at 1:1 and clip (user sees ~same on phone)
+            // Scale from Compose canvas coordinates to 512x512 bitmap
+            val scaleX = if (canvasWidth > 0) bmpSize / canvasWidth else 1f
+            val scaleY = if (canvasHeight > 0) bmpSize / canvasHeight else 1f
+
             for (stroke in strokes) {
                 if (stroke.points.size < 2) continue
                 val paint = android.graphics.Paint().apply {
                     color = stroke.color.toArgb()
-                    strokeWidth = stroke.width
+                    strokeWidth = stroke.width * scaleX
                     style = android.graphics.Paint.Style.STROKE
                     strokeCap = android.graphics.Paint.Cap.ROUND
                     strokeJoin = android.graphics.Paint.Join.ROUND
                     isAntiAlias = true
                 }
                 val path = android.graphics.Path()
-                path.moveTo(stroke.points[0].x, stroke.points[0].y)
+                path.moveTo(stroke.points[0].x * scaleX, stroke.points[0].y * scaleY)
                 for (i in 1 until stroke.points.size) {
-                    path.lineTo(stroke.points[i].x, stroke.points[i].y)
+                    path.lineTo(stroke.points[i].x * scaleX, stroke.points[i].y * scaleY)
                 }
                 canvas.drawPath(path, paint)
             }
