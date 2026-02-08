@@ -103,7 +103,7 @@ class ChatFragment : Fragment() {
                     couple?.let {
                         partnerName = if (it.partner1Id == userId) it.partner2Name else it.partner1Name
                         if (_binding != null && partnerName.isNotEmpty()) {
-                            binding.tvChatPartnerName.text = "💬 $partnerName"
+                            binding.tvChatPartnerName.text = partnerName
                         }
                     }
                 }

@@ -152,8 +152,8 @@ class MainFragment : Fragment() {
         listenForCoupleUpdates()
         requestLocationPermission()
 
-        // Ambient animations
-        Anim.floatUpDown(binding.lottieHeart, amplitude = 6f, duration = 3500L)
+        // Ambient animations — premium layered motion
+        Anim.floatUpDown(binding.lottieHeart, amplitude = 7f, duration = 3500L)
 
         // Foreground broadcast'i dinle
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
@@ -317,25 +317,25 @@ class MainFragment : Fragment() {
 
     private fun setupEmojiButtons() {
         binding.btnHeart.setOnClickListener { v ->
-            Anim.pressScale(v) {
+            Anim.gentlePress(v) {
                 VibrationManager.performLightTap(requireContext())
                 sendQuickEmoji("❤️")
             }
         }
         binding.btnKiss.setOnClickListener { v ->
-            Anim.pressScale(v) {
+            Anim.gentlePress(v) {
                 VibrationManager.performLightTap(requireContext())
                 sendQuickEmoji("💋")
             }
         }
         binding.btnLove.setOnClickListener { v ->
-            Anim.pressScale(v) {
+            Anim.gentlePress(v) {
                 VibrationManager.performLightTap(requireContext())
                 sendQuickEmoji("🥰")
             }
         }
         binding.btnPlease.setOnClickListener { v ->
-            Anim.pressScale(v) {
+            Anim.gentlePress(v) {
                 VibrationManager.performLightTap(requireContext())
                 sendQuickEmoji("🥺")
             }

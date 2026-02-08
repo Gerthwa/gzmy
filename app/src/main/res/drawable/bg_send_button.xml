@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <gradient
-        android:startColor="#F43F7A"
-        android:endColor="#9333EA"
-        android:angle="135" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Gradient circle -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:startColor="#FF4081"
+                android:centerColor="#E91E63"
+                android:endColor="#B24BF3"
+                android:angle="135" />
+        </shape>
+    </item>
+
+    <!-- Top highlight -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:startColor="#20FFFFFF"
+                android:centerColor="#00FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="90" />
+        </shape>
+    </item>
+
+</layer-list>

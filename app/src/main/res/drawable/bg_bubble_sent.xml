@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Layer 1: Main gradient -->
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#F43F7A"
-                android:endColor="#D6336C"
+                android:startColor="#FF4081"
+                android:centerColor="#E91E63"
+                android:endColor="#D81B60"
                 android:angle="135" />
             <corners
-                android:topLeftRadius="20dp"
-                android:topRightRadius="20dp"
-                android:bottomLeftRadius="20dp"
+                android:topLeftRadius="24dp"
+                android:topRightRadius="24dp"
+                android:bottomLeftRadius="24dp"
                 android:bottomRightRadius="6dp" />
         </shape>
     </item>
+
+    <!-- Layer 2: Top highlight -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#15FFFFFF"
+                android:centerColor="#00FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="90" />
+            <corners
+                android:topLeftRadius="24dp"
+                android:topRightRadius="24dp"
+                android:bottomLeftRadius="24dp"
+                android:bottomRightRadius="6dp" />
+        </shape>
+    </item>
+
 </layer-list>

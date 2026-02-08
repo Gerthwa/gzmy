@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Layer 1: Base glass -->
+    <!-- Glass base -->
     <item>
         <shape android:shape="rectangle">
             <solid android:color="#12FFFFFF" />
@@ -9,23 +9,23 @@
         </shape>
     </item>
 
-    <!-- Layer 2: Warm accent gradient tint -->
+    <!-- Gold shimmer tint -->
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#10FF4081"
-                android:centerColor="#06B24BF3"
-                android:endColor="#0C7C4DFF"
+                android:startColor="#0CFFD700"
+                android:centerColor="#06FFB300"
+                android:endColor="#08FF4081"
                 android:angle="135" />
             <corners android:radius="28dp" />
         </shape>
     </item>
 
-    <!-- Layer 3: Top highlight -->
+    <!-- Top highlight -->
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#08FFFFFF"
+                android:startColor="#0AFFFFFF"
                 android:centerColor="#00FFFFFF"
                 android:endColor="#00FFFFFF"
                 android:angle="90" />
@@ -33,13 +33,13 @@
         </shape>
     </item>
 
-    <!-- Layer 4: Border -->
+    <!-- Gold-tinted border -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="28dp" />
             <stroke
                 android:width="1dp"
-                android:color="#1AFFFFFF" />
+                android:color="#20FFD700" />
         </shape>
     </item>
 

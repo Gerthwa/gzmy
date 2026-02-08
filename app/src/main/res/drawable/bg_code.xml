@@ -1,9 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@color/glass_card_elevated" />
-    <corners android:radius="16dp" />
-    <stroke
-        android:width="2dp"
-        android:color="@color/primary_pink_glow" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Glass base -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#1AFFFFFF" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+
+    <!-- Accent tint -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#10FF4081"
+                android:endColor="#10B24BF3"
+                android:angle="135" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+
+    <!-- Glow border -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <stroke
+                android:width="2dp"
+                android:color="#30FF4081" />
+        </shape>
+    </item>
+
+</layer-list>

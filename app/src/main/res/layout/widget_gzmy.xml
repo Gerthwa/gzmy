@@ -5,20 +5,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bg_widget"
-    android:padding="16dp"
+    android:padding="18dp"
     android:gravity="center_vertical">
 
-    <!-- Başlık satırı + Partner ismi -->
+    <!-- Header row: brand + partner name -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="4dp">
+        android:layout_marginBottom="6dp">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:src="@drawable/ic_heart"
             android:contentDescription="Heart" />
 
@@ -27,48 +27,50 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="gzmy"
-            android:textColor="#E84576"
-            android:textSize="16sp"
+            android:textColor="#FF4081"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:layout_marginStart="6dp" />
+            android:letterSpacing="0.06"
+            android:layout_marginStart="8dp" />
 
         <TextView
             android:id="@+id/tvWidgetPartnerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#B0B0C8"
+            android:textColor="#A0A8C8"
             android:textSize="12sp" />
 
     </LinearLayout>
 
-    <!-- Son not / mesaj -->
+    <!-- Last message -->
     <TextView
         android:id="@+id/tvWidgetLastMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Henüz mesaj yok"
-        android:textColor="#FFFFFF"
+        android:textColor="#F5F5FF"
         android:textSize="14sp"
         android:maxLines="2"
         android:ellipsize="end"
-        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="3dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="2dp" />
 
-    <!-- Özlem seviyesi: emoji + ProgressBar -->
+    <!-- Miss level progress -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="8dp">
 
         <TextView
             android:id="@+id/tvWidgetMissLevel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="—"
-            android:textColor="#E84576"
+            android:textColor="#FF4081"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -76,17 +78,17 @@
             android:id="@+id/progressWidgetMiss"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
-            android:layout_height="6dp"
+            android:layout_height="5dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:max="100"
             android:progress="0"
-            android:progressTint="#E84576"
-            android:progressBackgroundTint="#30FFFFFF" />
+            android:progressTint="#FF4081"
+            android:progressBackgroundTint="#20FFFFFF" />
 
     </LinearLayout>
 
-    <!-- Çizim görseli -->
+    <!-- Drawing preview -->
     <ImageView
         android:id="@+id/ivWidgetDrawing"
         android:layout_width="match_parent"

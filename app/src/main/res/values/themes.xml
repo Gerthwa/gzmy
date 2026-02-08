@@ -1,8 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ═══════════════════════════════════════════════ -->
-    <!--  GZMY PREMIUM THEME SYSTEM                     -->
-    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  GZMY ULTRA-PREMIUM THEME SYSTEM v4.0                         -->
+    <!--  Luxury dark theme with refined typography & micro-details     -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
 
     <!-- Splash Screen Theme -->
     <style name="Theme.Gzmy.Splash" parent="Theme.Material3.Dark.NoActionBar">
@@ -27,7 +28,7 @@
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorSurfaceVariant">@color/background_elevated</item>
 
-        <!-- Edge-to-edge -->
+        <!-- Edge-to-edge immersive -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -55,74 +56,174 @@
         <item name="android:activityCloseExitAnimation">@anim/fade_out</item>
     </style>
 
-    <!-- ── Button Styles ── -->
+    <!-- ══════════════════════════════════════════ -->
+    <!--  BUTTON STYLES                             -->
+    <!-- ══════════════════════════════════════════ -->
 
+    <!-- Primary CTA Button (Gradient) -->
     <style name="Widget.Gzmy.Button" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/primary_pink</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">20dp</item>
+        <item name="cornerRadius">24dp</item>
         <item name="elevation">0dp</item>
         <item name="android:paddingTop">16dp</item>
         <item name="android:paddingBottom">16dp</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:letterSpacing">0.04</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="rippleColor">@color/ripple_white</item>
     </style>
 
     <style name="Widget.Gzmy.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
         <item name="strokeColor">@color/glass_card_border</item>
+        <item name="strokeWidth">1dp</item>
         <item name="android:textColor">@color/text_primary</item>
-        <item name="cornerRadius">20dp</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:letterSpacing">0.04</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="rippleColor">@color/ripple_pink</item>
     </style>
 
     <style name="Widget.Gzmy.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
         <item name="backgroundTint">@color/secondary_purple</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">20dp</item>
+        <item name="cornerRadius">24dp</item>
         <item name="elevation">0dp</item>
+        <item name="android:letterSpacing">0.04</item>
     </style>
 
     <style name="Widget.Gzmy.Button.Ghost" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">@color/text_secondary</item>
-        <item name="cornerRadius">20dp</item>
+        <item name="cornerRadius">24dp</item>
         <item name="rippleColor">@color/ripple_white</item>
     </style>
 
-    <!-- ── TextInputLayout ── -->
+    <!-- Premium Icon Button -->
+    <style name="Widget.Gzmy.Button.Icon" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="cornerRadius">50dp</item>
+        <item name="rippleColor">@color/ripple_pink</item>
+        <item name="android:minWidth">44dp</item>
+        <item name="android:minHeight">44dp</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TEXT INPUT                                 -->
+    <!-- ══════════════════════════════════════════ -->
 
     <style name="Widget.Gzmy.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/glass_card</item>
         <item name="boxStrokeColor">@color/primary_pink</item>
         <item name="hintTextColor">@color/primary_pink_light</item>
-        <item name="boxCornerRadiusTopStart">16dp</item>
-        <item name="boxCornerRadiusTopEnd">16dp</item>
-        <item name="boxCornerRadiusBottomStart">16dp</item>
-        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxCornerRadiusTopStart">20dp</item>
+        <item name="boxCornerRadiusTopEnd">20dp</item>
+        <item name="boxCornerRadiusBottomStart">20dp</item>
+        <item name="boxCornerRadiusBottomEnd">20dp</item>
     </style>
 
-    <!-- ── Card Style ── -->
+    <!-- ══════════════════════════════════════════ -->
+    <!--  CARD STYLES                               -->
+    <!-- ══════════════════════════════════════════ -->
 
     <style name="Widget.Gzmy.CardView" parent="Widget.Material3.CardView.Elevated">
         <item name="cardBackgroundColor">@android:color/transparent</item>
-        <item name="cardCornerRadius">24dp</item>
+        <item name="cardCornerRadius">28dp</item>
         <item name="cardElevation">0dp</item>
         <item name="strokeWidth">0dp</item>
     </style>
 
-    <!-- ── Typography ── -->
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TYPOGRAPHY SYSTEM (Premium Hierarchy)     -->
+    <!-- ══════════════════════════════════════════ -->
 
+    <!-- Hero Display - Used for big numbers, brand text -->
+    <style name="TextAppearance.Gzmy.Display" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">48sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Hero Headline -->
+    <style name="TextAppearance.Gzmy.Headline" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Section Title - Card headers -->
     <style name="TextAppearance.Gzmy.SectionTitle" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:letterSpacing">0.02</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <!-- Card Subtitle -->
+    <style name="TextAppearance.Gzmy.Subtitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
+    <!-- Body text -->
+    <style name="TextAppearance.Gzmy.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- Caption / Meta text -->
     <style name="TextAppearance.Gzmy.Caption" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textColor">@color/text_tertiary</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- Micro Label - Very small text, badge labels -->
+    <style name="TextAppearance.Gzmy.Micro" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Accent Label - Pink accent labels -->
+    <style name="TextAppearance.Gzmy.AccentLabel" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/primary_pink_light</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Big Number Display (for counters, stats) -->
+    <style name="TextAppearance.Gzmy.BigNumber" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textColor">@color/primary_pink</item>
+        <item name="android:textSize">44sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+    </style>
+
+    <!-- Brand Title -->
+    <style name="TextAppearance.Gzmy.Brand" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:textColor">@color/primary_pink</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:letterSpacing">0.12</item>
+    </style>
+
+    <!-- Brand Tagline -->
+    <style name="TextAppearance.Gzmy.Tagline" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.10</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
 </resources>

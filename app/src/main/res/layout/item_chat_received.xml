@@ -2,9 +2,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="4dp"
+    android:paddingVertical="5dp"
     android:paddingStart="4dp"
-    android:paddingEnd="48dp">
+    android:paddingEnd="56dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -12,9 +12,10 @@
         android:layout_gravity="start"
         android:orientation="vertical"
         android:background="@drawable/bg_bubble_received"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:maxWidth="280dp">
+        android:paddingHorizontal="18dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="10dp"
+        android:maxWidth="300dp">
 
         <TextView
             android:id="@+id/tvSenderName"
@@ -23,7 +24,8 @@
             android:textColor="@color/primary_pink_light"
             android:textSize="11sp"
             android:fontFamily="sans-serif-medium"
-            android:layout_marginBottom="2dp" />
+            android:letterSpacing="0.02"
+            android:layout_marginBottom="3dp" />
 
         <TextView
             android:id="@+id/tvMessageContent"
@@ -31,7 +33,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
             android:textSize="15sp"
-            android:lineSpacingExtra="3dp" />
+            android:lineSpacingExtra="4dp" />
 
         <TextView
             android:id="@+id/tvMessageTime"
@@ -40,8 +42,9 @@
             android:layout_gravity="end"
             android:textColor="@color/text_tertiary"
             android:textSize="10sp"
-            android:layout_marginTop="4dp"
-            android:fontFamily="sans-serif-light" />
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-light"
+            android:letterSpacing="0.02" />
 
     </LinearLayout>
 

@@ -16,13 +16,15 @@
         android:orientation="vertical"
         android:paddingHorizontal="20dp"
         android:paddingTop="16dp"
-        android:paddingBottom="32dp">
+        android:paddingBottom="40dp">
 
-        <!-- ════════════ HEADER ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  PREMIUM HEADER                                      -->
+        <!-- ════════════════════════════════════════════════════ -->
 
-        <!-- Gradient accent line -->
+        <!-- Gradient accent bar -->
         <View
-            android:layout_width="60dp"
+            android:layout_width="48dp"
             android:layout_height="3dp"
             android:layout_gravity="center"
             android:background="@drawable/bg_header_gradient"
@@ -33,9 +35,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="28dp">
 
-            <!-- App title -->
+            <!-- Brand identity -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -47,8 +49,8 @@
                     android:layout_height="wrap_content"
                     android:text="gzmy"
                     android:textColor="@color/primary_pink"
-                    android:textSize="32sp"
-                    android:letterSpacing="0.12"
+                    android:textSize="34sp"
+                    android:letterSpacing="0.14"
                     android:fontFamily="sans-serif-black" />
 
                 <TextView
@@ -57,13 +59,13 @@
                     android:text="seni hissediyorum"
                     android:textColor="@color/text_tertiary"
                     android:textSize="12sp"
-                    android:letterSpacing="0.08"
+                    android:letterSpacing="0.10"
                     android:fontFamily="sans-serif-light"
                     android:layout_marginTop="-2dp" />
 
             </LinearLayout>
 
-            <!-- Action buttons -->
+            <!-- Header action buttons -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChat"
                 style="@style/Widget.Gzmy.Button.Ghost"
@@ -73,30 +75,34 @@
                 android:insetBottom="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:text="💬"
-                android:textSize="22sp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="8dp"
+                app:icon="@drawable/ic_chat_bubble"
+                app:iconSize="24dp"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
                 app:cornerRadius="24dp"
                 app:rippleColor="@color/ripple_pink" />
 
             <ImageButton
                 android:id="@+id/btnLogout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_heart"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_logout"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@color/text_tertiary"
-                android:contentDescription="Çıkış"
-                android:alpha="0.6" />
+                android:contentDescription="Ayarlar"
+                android:alpha="0.7"
+                android:padding="10dp" />
 
         </LinearLayout>
 
-        <!-- ════════════ HERO CARD (Status + Heart) ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  HERO CARD (Status + Animated Heart)                 -->
+        <!-- ════════════════════════════════════════════════════ -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -104,17 +110,27 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:background="@drawable/bg_glass_hero"
-                android:paddingVertical="28dp"
-                android:paddingHorizontal="24dp">
+                android:paddingVertical="32dp"
+                android:paddingHorizontal="28dp">
+
+                <!-- Sparkle decoration -->
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_sparkle"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="4dp"
+                    android:alpha="0.6"
+                    android:contentDescription="@null" />
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/lottieHeart"
-                    android:layout_width="88dp"
-                    android:layout_height="88dp"
-                    android:layout_marginBottom="12dp"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginBottom="16dp"
                     app:lottie_autoPlay="true"
                     app:lottie_loop="true"
-                    app:lottie_speed="0.7" />
+                    app:lottie_speed="0.6" />
 
                 <TextView
                     android:id="@+id/tvLastMessage"
@@ -122,21 +138,23 @@
                     android:layout_height="wrap_content"
                     android:text="Bağlanıyor..."
                     android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:gravity="center"
-                    android:lineSpacingExtra="4dp"
+                    android:lineSpacingExtra="5dp"
                     android:fontFamily="sans-serif-light" />
 
             </LinearLayout>
 
         </FrameLayout>
 
-        <!-- ════════════ MISS YOU SLIDER ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  MISS YOU SLIDER (Premium Emotion Meter)             -->
+        <!-- ════════════════════════════════════════════════════ -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -144,16 +162,16 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_glass_card_accent"
                 android:paddingHorizontal="24dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="16dp">
+                android:paddingTop="24dp"
+                android:paddingBottom="18dp">
 
-                <!-- Section header row -->
+                <!-- Section header -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="6dp">
 
                     <TextView
                         android:layout_width="0dp"
@@ -162,11 +180,12 @@
                         android:text="Beni Ne Kadar Özledin?"
                         style="@style/TextAppearance.Gzmy.SectionTitle" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="💕"
-                        android:textSize="18sp" />
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_sparkle"
+                        android:alpha="0.7"
+                        android:contentDescription="@null" />
 
                 </LinearLayout>
 
@@ -177,7 +196,7 @@
                     android:text="Partnerinin seviyesi: —"
                     android:textColor="@color/text_tertiary"
                     android:textSize="12sp"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="18dp" />
 
                 <!-- Big number display -->
                 <TextView
@@ -186,7 +205,7 @@
                     android:layout_height="wrap_content"
                     android:text="🤍 0"
                     android:textColor="@color/primary_pink"
-                    android:textSize="40sp"
+                    android:textSize="44sp"
                     android:fontFamily="sans-serif-black"
                     android:gravity="center"
                     android:layout_marginBottom="4dp" />
@@ -199,12 +218,12 @@
                     android:valueTo="100"
                     android:stepSize="1"
                     app:thumbColor="@color/primary_pink"
-                    app:thumbRadius="14dp"
+                    app:thumbRadius="15dp"
                     app:trackColorActive="@color/primary_pink"
                     app:trackColorInactive="@color/glass_card_border"
                     app:trackHeight="6dp"
                     app:haloColor="@color/primary_pink_glow"
-                    app:haloRadius="24dp"
+                    app:haloRadius="26dp"
                     app:labelBehavior="gone" />
 
                 <LinearLayout
@@ -232,12 +251,14 @@
 
         </FrameLayout>
 
-        <!-- ════════════ VIBRATION SECTION ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  VIBRATION SECTION (Premium Touch Buttons)           -->
+        <!-- ════════════════════════════════════════════════════ -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -245,14 +266,14 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_glass_card"
                 android:paddingHorizontal="24dp"
-                android:paddingVertical="20dp">
+                android:paddingVertical="24dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dokunuş Gönder"
                     style="@style/TextAppearance.Gzmy.SectionTitle"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="20dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -264,7 +285,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="6dp">
+                        android:layout_marginEnd="8dp">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnGentle"
@@ -275,10 +296,10 @@
                             android:textAllCaps="false"
                             android:textSize="12sp"
                             android:textColor="@color/white"
-                            android:padding="16dp"
-                            android:lineSpacingExtra="4dp"
+                            android:padding="18dp"
+                            android:lineSpacingExtra="6dp"
                             app:backgroundTint="@null"
-                            app:cornerRadius="20dp"
+                            app:cornerRadius="24dp"
                             app:rippleColor="@color/ripple_white" />
 
                     </FrameLayout>
@@ -288,7 +309,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginHorizontal="3dp">
+                        android:layout_marginHorizontal="4dp">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnHeartbeat"
@@ -299,10 +320,10 @@
                             android:textAllCaps="false"
                             android:textSize="12sp"
                             android:textColor="@color/white"
-                            android:padding="16dp"
-                            android:lineSpacingExtra="4dp"
+                            android:padding="18dp"
+                            android:lineSpacingExtra="6dp"
                             app:backgroundTint="@null"
-                            app:cornerRadius="20dp"
+                            app:cornerRadius="24dp"
                             app:rippleColor="@color/ripple_white" />
 
                     </FrameLayout>
@@ -312,7 +333,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="6dp">
+                        android:layout_marginStart="8dp">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnIntense"
@@ -323,10 +344,10 @@
                             android:textAllCaps="false"
                             android:textSize="12sp"
                             android:textColor="@color/white"
-                            android:padding="16dp"
-                            android:lineSpacingExtra="4dp"
+                            android:padding="18dp"
+                            android:lineSpacingExtra="6dp"
                             app:backgroundTint="@null"
-                            app:cornerRadius="20dp"
+                            app:cornerRadius="24dp"
                             app:rippleColor="@color/ripple_white" />
 
                     </FrameLayout>
@@ -337,12 +358,14 @@
 
         </FrameLayout>
 
-        <!-- ════════════ OUR MAP (Distance Bridge) ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  OUR MAP (Direction Compass - Premium)               -->
+        <!-- ════════════════════════════════════════════════════ -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -350,7 +373,7 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_glass_card_accent"
                 android:paddingHorizontal="24dp"
-                android:paddingVertical="20dp">
+                android:paddingVertical="24dp">
 
                 <!-- Section header -->
                 <LinearLayout
@@ -358,7 +381,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="20dp">
 
                     <TextView
                         android:layout_width="0dp"
@@ -367,29 +390,42 @@
                         android:text="Bizim Haritamız"
                         style="@style/TextAppearance.Gzmy.SectionTitle" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🧭"
-                        android:textSize="18sp" />
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_compass_rose"
+                        android:contentDescription="@null" />
 
                 </LinearLayout>
 
-                <!-- Arrow + Distance row -->
+                <!-- Compass + Distance row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <!-- Direction arrow -->
-                    <ImageView
-                        android:id="@+id/ivDirectionArrow"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:src="@drawable/ic_direction_arrow"
-                        android:contentDescription="Yön oku"
-                        android:layout_marginEnd="20dp" />
+                    <!-- Direction arrow with glow bg -->
+                    <FrameLayout
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:layout_marginEnd="20dp">
+
+                        <!-- Glow behind arrow -->
+                        <View
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:background="@drawable/bg_emoji_circle" />
+
+                        <ImageView
+                            android:id="@+id/ivDirectionArrow"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_direction_arrow"
+                            android:contentDescription="Yön oku" />
+
+                    </FrameLayout>
 
                     <!-- Distance info -->
                     <LinearLayout
@@ -404,7 +440,7 @@
                             android:layout_height="wrap_content"
                             android:text="— km"
                             android:textColor="@color/primary_pink"
-                            android:textSize="28sp"
+                            android:textSize="30sp"
                             android:fontFamily="sans-serif-black" />
 
                         <TextView
@@ -414,32 +450,41 @@
                             android:text="Konum bekleniyor..."
                             android:textColor="@color/text_secondary"
                             android:textSize="13sp"
-                            android:layout_marginTop="2dp" />
+                            android:layout_marginTop="3dp" />
 
                     </LinearLayout>
 
                 </LinearLayout>
 
+                <!-- Gradient divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/bg_divider_gradient"
+                    android:layout_marginVertical="14dp" />
+
                 <TextView
                     android:id="@+id/tvLocationStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="📍 Konum izni gerekiyor"
+                    android:text="Konum izni gerekiyor"
                     android:textColor="@color/text_tertiary"
                     android:textSize="11sp"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:drawablePadding="6dp" />
 
             </LinearLayout>
 
         </FrameLayout>
 
-        <!-- ════════════ QUICK EMOJI ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  QUICK EMOJI (Premium Emotion Grid)                  -->
+        <!-- ════════════════════════════════════════════════════ -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -447,14 +492,14 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_glass_card"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="20dp">
+                android:paddingVertical="24dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Hızlı Duygu"
                     style="@style/TextAppearance.Gzmy.SectionTitle"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="24dp"
                     android:layout_marginStart="8dp" />
 
                 <LinearLayout
@@ -474,8 +519,8 @@
 
                         <FrameLayout
                             android:id="@+id/btnHeart"
-                            android:layout_width="68dp"
-                            android:layout_height="68dp"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
                             android:background="@drawable/bg_emoji_circle"
                             android:clickable="true"
                             android:focusable="true"
@@ -486,7 +531,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="❤️"
-                                android:textSize="32sp"
+                                android:textSize="34sp"
                                 android:includeFontPadding="false" />
 
                         </FrameLayout>
@@ -497,7 +542,7 @@
                             android:text="Aşk"
                             android:textColor="@color/text_tertiary"
                             android:textSize="11sp"
-                            android:layout_marginTop="6dp" />
+                            android:layout_marginTop="8dp" />
 
                     </LinearLayout>
 
@@ -511,8 +556,8 @@
 
                         <FrameLayout
                             android:id="@+id/btnKiss"
-                            android:layout_width="68dp"
-                            android:layout_height="68dp"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
                             android:background="@drawable/bg_emoji_circle"
                             android:clickable="true"
                             android:focusable="true"
@@ -523,7 +568,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="💋"
-                                android:textSize="32sp"
+                                android:textSize="34sp"
                                 android:includeFontPadding="false" />
 
                         </FrameLayout>
@@ -534,7 +579,7 @@
                             android:text="Öpücük"
                             android:textColor="@color/text_tertiary"
                             android:textSize="11sp"
-                            android:layout_marginTop="6dp" />
+                            android:layout_marginTop="8dp" />
 
                     </LinearLayout>
 
@@ -548,8 +593,8 @@
 
                         <FrameLayout
                             android:id="@+id/btnLove"
-                            android:layout_width="68dp"
-                            android:layout_height="68dp"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
                             android:background="@drawable/bg_emoji_circle"
                             android:clickable="true"
                             android:focusable="true"
@@ -560,7 +605,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="🥰"
-                                android:textSize="32sp"
+                                android:textSize="34sp"
                                 android:includeFontPadding="false" />
 
                         </FrameLayout>
@@ -571,7 +616,7 @@
                             android:text="Sevgi"
                             android:textColor="@color/text_tertiary"
                             android:textSize="11sp"
-                            android:layout_marginTop="6dp" />
+                            android:layout_marginTop="8dp" />
 
                     </LinearLayout>
 
@@ -585,8 +630,8 @@
 
                         <FrameLayout
                             android:id="@+id/btnPlease"
-                            android:layout_width="68dp"
-                            android:layout_height="68dp"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
                             android:background="@drawable/bg_emoji_circle"
                             android:clickable="true"
                             android:focusable="true"
@@ -597,7 +642,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="🥺"
-                                android:textSize="32sp"
+                                android:textSize="34sp"
                                 android:includeFontPadding="false" />
 
                         </FrameLayout>
@@ -608,7 +653,7 @@
                             android:text="Lütfen"
                             android:textColor="@color/text_tertiary"
                             android:textSize="11sp"
-                            android:layout_marginTop="6dp" />
+                            android:layout_marginTop="8dp" />
 
                     </LinearLayout>
 
@@ -618,12 +663,14 @@
 
         </FrameLayout>
 
-        <!-- ════════════ NOTE SECTION ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  NOTE SECTION (Premium Message Composer)             -->
+        <!-- ════════════════════════════════════════════════════ -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -631,14 +678,30 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_glass_card"
                 android:paddingHorizontal="24dp"
-                android:paddingVertical="20dp">
+                android:paddingVertical="24dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Özel Not ✉️"
-                    style="@style/TextAppearance.Gzmy.SectionTitle"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="18dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Özel Not"
+                        style="@style/TextAppearance.Gzmy.SectionTitle" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_sparkle"
+                        android:alpha="0.5"
+                        android:contentDescription="@null" />
+
+                </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -648,10 +711,10 @@
                     app:boxBackgroundColor="@color/glass_card"
                     app:boxStrokeColor="@color/primary_pink"
                     app:hintTextColor="@color/primary_pink_light"
-                    app:boxCornerRadiusTopStart="16dp"
-                    app:boxCornerRadiusTopEnd="16dp"
-                    app:boxCornerRadiusBottomStart="16dp"
-                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusTopStart="20dp"
+                    app:boxCornerRadiusTopEnd="20dp"
+                    app:boxCornerRadiusBottomStart="20dp"
+                    app:boxCornerRadiusBottomEnd="20dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -664,17 +727,18 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Gradient send button -->
+                <!-- Premium gradient send button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSendNote"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:text="Gönder"
                     android:textAllCaps="false"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textColor="@color/white"
-                    android:letterSpacing="0.04"
-                    android:layout_marginTop="14dp"
+                    android:letterSpacing="0.06"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginTop="16dp"
                     android:background="@drawable/bg_gradient_pill"
                     app:backgroundTint="@null"
                     app:cornerRadius="28dp"
@@ -684,22 +748,78 @@
 
         </FrameLayout>
 
-        <!-- ════════════ DRAWING BUTTON ════════════ -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  DRAWING BUTTON (Premium CTA)                        -->
+        <!-- ════════════════════════════════════════════════════ -->
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOpenDrawing"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="🎨 Çizim Gönder"
-            android:textAllCaps="false"
-            android:textSize="15sp"
-            android:textColor="@color/white"
-            android:letterSpacing="0.04"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_gradient_pill"
-            app:backgroundTint="@null"
-            app:cornerRadius="28dp"
-            app:rippleColor="@color/ripple_white" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_premium_card_gold"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="20dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_palette"
+                    android:layout_marginEnd="16dp"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Çizim Gönder"
+                        style="@style/TextAppearance.Gzmy.SectionTitle" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Parmağınla sevgini çiz"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenDrawing"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:background="@drawable/bg_gradient_pill"
+                    app:backgroundTint="@null"
+                    app:icon="@drawable/ic_send_arrow"
+                    app:iconSize="22dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:cornerRadius="28dp"
+                    app:rippleColor="@color/ripple_white" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- Bottom breathing space -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
 
     </LinearLayout>
 

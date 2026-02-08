@@ -4,14 +4,19 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
 
 /**
- * Premium animation system for GZMY.
- * Provides micro-interactions, entrance effects, and continuous ambient animations.
+ * Ultra-premium animation system for GZMY.
+ *
+ * Provides:
+ * - Entrance effects (staggered, slide, fade, pop)
+ * - Micro-interactions (press, shimmer, ripple cascade)
+ * - Ambient animations (pulse, breathe, float, glow, orbit)
+ * - Utility animations (count-up, typewriter)
  */
 object AnimationUtils {
 
@@ -26,13 +31,13 @@ object AnimationUtils {
     fun staggeredEntrance(views: List<View>, staggerDelay: Long = 80L) {
         views.forEachIndexed { index, view ->
             view.alpha = 0f
-            view.translationY = 50f
+            view.translationY = 60f
             view.animate()
                 .alpha(1f)
                 .translationY(0f)
-                .setDuration(500)
+                .setDuration(550)
                 .setStartDelay(index * staggerDelay + 100)
-                .setInterpolator(DecelerateInterpolator(2f))
+                .setInterpolator(DecelerateInterpolator(2.5f))
                 .start()
         }
     }
@@ -40,7 +45,7 @@ object AnimationUtils {
     /**
      * Slide up from bottom with spring-like ease.
      */
-    fun slideUp(view: View, duration: Long = 400L, startDelay: Long = 0L) {
+    fun slideUp(view: View, duration: Long = 450L, startDelay: Long = 0L) {
         view.alpha = 0f
         view.translationY = 80f
         view.visibility = View.VISIBLE
@@ -49,17 +54,17 @@ object AnimationUtils {
             .translationY(0f)
             .setDuration(duration)
             .setStartDelay(startDelay)
-            .setInterpolator(DecelerateInterpolator(2f))
+            .setInterpolator(DecelerateInterpolator(2.5f))
             .start()
     }
 
     /**
      * Fade in with subtle scale.
      */
-    fun fadeIn(view: View, duration: Long = 350L, startDelay: Long = 0L) {
+    fun fadeIn(view: View, duration: Long = 400L, startDelay: Long = 0L) {
         view.alpha = 0f
-        view.scaleX = 0.97f
-        view.scaleY = 0.97f
+        view.scaleX = 0.96f
+        view.scaleY = 0.96f
         view.visibility = View.VISIBLE
         view.animate()
             .alpha(1f)
@@ -83,9 +88,41 @@ object AnimationUtils {
             .scaleX(1f)
             .scaleY(1f)
             .alpha(1f)
-            .setDuration(450)
+            .setDuration(500)
             .setStartDelay(startDelay)
-            .setInterpolator(OvershootInterpolator(1.8f))
+            .setInterpolator(OvershootInterpolator(1.6f))
+            .start()
+    }
+
+    /**
+     * Slide in from left with parallax feel.
+     */
+    fun slideInFromLeft(view: View, distance: Float = 120f, duration: Long = 400L, startDelay: Long = 0L) {
+        view.alpha = 0f
+        view.translationX = -distance
+        view.visibility = View.VISIBLE
+        view.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setDuration(duration)
+            .setStartDelay(startDelay)
+            .setInterpolator(DecelerateInterpolator(2f))
+            .start()
+    }
+
+    /**
+     * Slide in from right.
+     */
+    fun slideInFromRight(view: View, distance: Float = 120f, duration: Long = 400L, startDelay: Long = 0L) {
+        view.alpha = 0f
+        view.translationX = distance
+        view.visibility = View.VISIBLE
+        view.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setDuration(duration)
+            .setStartDelay(startDelay)
+            .setInterpolator(DecelerateInterpolator(2f))
             .start()
     }
 
@@ -99,15 +136,35 @@ object AnimationUtils {
      */
     fun pressScale(view: View, onRelease: (() -> Unit)? = null) {
         view.animate()
-            .scaleX(0.93f)
-            .scaleY(0.93f)
-            .setDuration(80)
+            .scaleX(0.92f)
+            .scaleY(0.92f)
+            .setDuration(75)
             .withEndAction {
                 view.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(200)
-                    .setInterpolator(OvershootInterpolator(3f))
+                    .setDuration(220)
+                    .setInterpolator(OvershootInterpolator(3.5f))
+                    .withEndAction { onRelease?.invoke() }
+                    .start()
+            }
+            .start()
+    }
+
+    /**
+     * Gentle press for smaller elements (emojis, icons).
+     */
+    fun gentlePress(view: View, onRelease: (() -> Unit)? = null) {
+        view.animate()
+            .scaleX(0.88f)
+            .scaleY(0.88f)
+            .setDuration(60)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(300)
+                    .setInterpolator(OvershootInterpolator(4f))
                     .withEndAction { onRelease?.invoke() }
                     .start()
             }
@@ -119,20 +176,60 @@ object AnimationUtils {
      */
     fun shimmerFlash(view: View) {
         view.animate()
-            .alpha(0.5f)
-            .scaleX(1.02f)
-            .scaleY(1.02f)
-            .setDuration(120)
+            .alpha(0.4f)
+            .scaleX(1.03f)
+            .scaleY(1.03f)
+            .setDuration(100)
             .withEndAction {
                 view.animate()
                     .alpha(1f)
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(250)
+                    .setDuration(300)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
             }
             .start()
+    }
+
+    /**
+     * Ripple cascade: animate a list of views in sequence with a scale pop.
+     * Good for "sending" feedback across multiple elements.
+     */
+    fun rippleCascade(views: List<View>, delayBetween: Long = 50L) {
+        views.forEachIndexed { index, view ->
+            view.animate()
+                .scaleX(1.1f)
+                .scaleY(1.1f)
+                .setDuration(100)
+                .setStartDelay(index * delayBetween)
+                .withEndAction {
+                    view.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(200)
+                        .setInterpolator(OvershootInterpolator(2f))
+                        .start()
+                }
+                .start()
+        }
+    }
+
+    /**
+     * Jelly bounce effect for important updates.
+     */
+    fun jellyBounce(view: View) {
+        val scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, 1f, 1.15f, 0.9f, 1.05f, 1f).apply {
+            duration = 500
+        }
+        val scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, 1f, 0.9f, 1.15f, 0.95f, 1f).apply {
+            duration = 500
+        }
+        AnimatorSet().apply {
+            playTogether(scaleX, scaleY)
+            interpolator = DecelerateInterpolator()
+            start()
+        }
     }
 
     // ═══════════════════════════════════════
@@ -181,6 +278,52 @@ object AnimationUtils {
         }
     }
 
+    /**
+     * Glow pulse — combines scale + alpha for a "breathing glow" effect.
+     * Perfect for hero cards and important elements.
+     */
+    fun glowPulse(view: View, duration: Long = 2500L) {
+        val scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, 1f, 1.02f, 1f).apply {
+            repeatCount = ObjectAnimator.INFINITE
+        }
+        val scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, 1f, 1.02f, 1f).apply {
+            repeatCount = ObjectAnimator.INFINITE
+        }
+        val alpha = ObjectAnimator.ofFloat(view, View.ALPHA, 0.85f, 1f, 0.85f).apply {
+            repeatCount = ObjectAnimator.INFINITE
+        }
+        AnimatorSet().apply {
+            playTogether(scaleX, scaleY, alpha)
+            this.duration = duration
+            this.interpolator = AccelerateDecelerateInterpolator()
+            start()
+        }
+    }
+
+    /**
+     * Slow continuous rotation (for compass arrows, spinners).
+     */
+    fun slowRotate(view: View, duration: Long = 8000L) {
+        ObjectAnimator.ofFloat(view, View.ROTATION, 0f, 360f).apply {
+            this.duration = duration
+            repeatCount = ObjectAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            start()
+        }
+    }
+
+    /**
+     * Subtle sway — gentle left-right rotation, great for floating elements.
+     */
+    fun sway(view: View, angle: Float = 3f, duration: Long = 3500L) {
+        ObjectAnimator.ofFloat(view, View.ROTATION, -angle, angle, -angle).apply {
+            this.duration = duration
+            repeatCount = ObjectAnimator.INFINITE
+            interpolator = AccelerateDecelerateInterpolator()
+            start()
+        }
+    }
+
     // ═══════════════════════════════════════
     //  UTILITY
     // ═══════════════════════════════════════
@@ -196,6 +339,19 @@ object AnimationUtils {
                 view.text = format(animation.animatedValue as Int)
             }
             start()
+        }
+    }
+
+    /**
+     * Typewriter effect — reveals text character by character.
+     */
+    fun typewriter(view: android.widget.TextView, text: String, charDelay: Long = 40L) {
+        view.text = ""
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        text.forEachIndexed { index, _ ->
+            handler.postDelayed({
+                view.text = text.substring(0, index + 1)
+            }, index * charDelay)
         }
     }
 }

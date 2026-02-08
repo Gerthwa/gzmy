@@ -1,62 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- ═══════════════════════════════════════════════ -->
-    <!--  GZMY PREMIUM COLOR SYSTEM                     -->
-    <!--  Cosmic dark theme + neon rose accents          -->
-    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  GZMY ULTRA-PREMIUM COLOR SYSTEM v4.0                         -->
+    <!--  Cosmic dark theme + Aurora rose + Gold luxury accents         -->
+    <!--  Inspired by: Spotify Premium, Apple Music, Revolut, Locket   -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
 
-    <!-- Primary Rose Gradient Spectrum -->
-    <color name="primary_pink">#F43F7A</color>
-    <color name="primary_pink_dark">#D6336C</color>
-    <color name="primary_pink_light">#FF6B9D</color>
-    <color name="primary_pink_glow">#40F43F7A</color>
+    <!-- ── Primary Rose Spectrum (Brand Identity) ── -->
+    <color name="primary_pink">#FF4081</color>
+    <color name="primary_pink_dark">#E91E63</color>
+    <color name="primary_pink_light">#FF80AB</color>
+    <color name="primary_pink_glow">#40FF4081</color>
+    <color name="primary_pink_subtle">#18FF4081</color>
+    <color name="primary_pink_ultra_glow">#60FF4081</color>
 
-    <!-- Secondary Violet Spectrum -->
-    <color name="secondary_purple">#9333EA</color>
-    <color name="secondary_purple_light">#A855F7</color>
-    <color name="secondary_purple_glow">#409333EA</color>
+    <!-- ── Secondary Violet Spectrum ── -->
+    <color name="secondary_purple">#B24BF3</color>
+    <color name="secondary_purple_light">#CE93D8</color>
+    <color name="secondary_purple_dark">#7C4DFF</color>
+    <color name="secondary_purple_glow">#40B24BF3</color>
 
-    <!-- Tertiary Coral (warm accent) -->
-    <color name="tertiary_coral">#FB7185</color>
-    <color name="tertiary_gold">#FBBF24</color>
+    <!-- ── Tertiary Accent Palette ── -->
+    <color name="tertiary_coral">#FF6B6B</color>
+    <color name="tertiary_gold">#FFD700</color>
+    <color name="tertiary_rose_gold">#E8B4B8</color>
+    <color name="tertiary_peach">#FFAB91</color>
+    <color name="tertiary_sky">#64B5F6</color>
+    <color name="tertiary_mint">#80CBC4</color>
 
-    <!-- ── Background Layers (depth system) ── -->
-    <color name="background_dark">#080810</color>         <!-- Deepest void -->
-    <color name="background_surface">#0E0E1A</color>      <!-- Base surface -->
-    <color name="background_elevated">#141428</color>      <!-- Elevated layer -->
+    <!-- ── Luxury Gold System ── -->
+    <color name="gold_primary">#FFD700</color>
+    <color name="gold_light">#FFF176</color>
+    <color name="gold_warm">#FFB300</color>
+    <color name="gold_glow">#30FFD700</color>
+    <color name="gold_shimmer">#15FFD700</color>
 
-    <!-- ── Glass Card System ── -->
-    <color name="glass_card">#18FFFFFF</color>             <!-- 9% white overlay -->
-    <color name="glass_card_border">#20FFFFFF</color>      <!-- 12% white border -->
-    <color name="glass_card_elevated">#22FFFFFF</color>    <!-- 13% white, elevated -->
-    <color name="glass_highlight">#0DFFFFFF</color>        <!-- Subtle inner glow -->
+    <!-- ── Background Layers (Cosmic Depth System) ── -->
+    <color name="background_void">#050508</color>           <!-- Deepest cosmic void -->
+    <color name="background_dark">#07070F</color>            <!-- Primary background -->
+    <color name="background_surface">#0C0C18</color>         <!-- Base surface -->
+    <color name="background_elevated">#12122A</color>        <!-- Elevated cards -->
+    <color name="background_floating">#181838</color>        <!-- Floating elements -->
+    <color name="background_sheet">#1A1A3E</color>           <!-- Bottom sheets -->
 
-    <!-- ── Text Hierarchy ── -->
+    <!-- ── Glass Card System (Frosted Glass + Depth) ── -->
+    <color name="glass_card">#14FFFFFF</color>               <!-- 8% white overlay -->
+    <color name="glass_card_border">#1AFFFFFF</color>        <!-- 10% white border -->
+    <color name="glass_card_elevated">#1EFFFFFF</color>      <!-- 12% white, elevated -->
+    <color name="glass_highlight">#0AFFFFFF</color>          <!-- Top edge highlight -->
+    <color name="glass_inner_glow">#08FFFFFF</color>         <!-- Inner glow -->
+    <color name="glass_premium">#20FFFFFF</color>            <!-- Premium glass layer -->
+    <color name="glass_frosted">#12FFFFFF</color>            <!-- Frosted overlay -->
+
+    <!-- ── Text Hierarchy (Refined Readability) ── -->
     <color name="white">#FFFFFF</color>
-    <color name="text_primary">#F0F0FF</color>             <!-- Slightly warm white -->
-    <color name="text_secondary">#9CA3C0</color>           <!-- Muted lavender -->
-    <color name="text_tertiary">#636B8A</color>            <!-- Dimmed -->
+    <color name="text_primary">#F5F5FF</color>               <!-- Crisp white-lavender -->
+    <color name="text_secondary">#A0A8C8</color>             <!-- Soft lavender-gray -->
+    <color name="text_tertiary">#5C6488</color>              <!-- Muted indigo -->
+    <color name="text_disabled">#3A3F5C</color>              <!-- Barely visible -->
+    <color name="text_accent">#FF80AB</color>                <!-- Pink accent text -->
+    <color name="text_gold">#FFD700</color>                  <!-- Gold accent text -->
     <color name="gray">#4B5279</color>
     <color name="black">#000000</color>
 
-    <!-- ── Functional Colors ── -->
-    <color name="divider">#15FFFFFF</color>                <!-- Very subtle divider -->
-    <color name="success_green">#34D399</color>
-    <color name="warning_amber">#FBBF24</color>
+    <!-- ── Functional / Status Colors ── -->
+    <color name="success_green">#69F0AE</color>
+    <color name="success_green_glow">#3069F0AE</color>
+    <color name="warning_amber">#FFD740</color>
+    <color name="error_red">#FF5252</color>
+    <color name="info_blue">#448AFF</color>
+    <color name="online_indicator">#00E676</color>
+
+    <!-- ── Dividers & Separators ── -->
+    <color name="divider">#0CFFFFFF</color>
+    <color name="divider_subtle">#08FFFFFF</color>
+    <color name="divider_accent">#15FF4081</color>
 
     <!-- ── Interaction Feedback ── -->
-    <color name="ripple_pink">#30F43F7A</color>
-    <color name="ripple_white">#12FFFFFF</color>
+    <color name="ripple_pink">#28FF4081</color>
+    <color name="ripple_white">#10FFFFFF</color>
+    <color name="ripple_gold">#20FFD700</color>
+    <color name="ripple_purple">#20B24BF3</color>
 
     <!-- ── Gradient Anchors ── -->
-    <color name="gradient_pink_start">#F43F7A</color>
-    <color name="gradient_purple_end">#9333EA</color>
-    <color name="gradient_warm_start">#F43F7A</color>
-    <color name="gradient_warm_end">#FB7185</color>
+    <color name="gradient_pink_start">#FF4081</color>
+    <color name="gradient_purple_end">#B24BF3</color>
+    <color name="gradient_warm_start">#FF6B6B</color>
+    <color name="gradient_warm_end">#FF4081</color>
+    <color name="gradient_aurora_start">#FF4081</color>
+    <color name="gradient_aurora_mid">#B24BF3</color>
+    <color name="gradient_aurora_end">#7C4DFF</color>
+    <color name="gradient_gold_start">#FFD700</color>
+    <color name="gradient_gold_end">#FFB300</color>
+    <color name="gradient_sunset_start">#FF6B6B</color>
+    <color name="gradient_sunset_end">#FFB300</color>
+
+    <!-- ── Shadow Colors ── -->
+    <color name="shadow_pink">#40FF4081</color>
+    <color name="shadow_purple">#40B24BF3</color>
+    <color name="shadow_dark">#80000000</color>
 
     <!-- Legacy compat -->
-    <color name="card_background">#18FFFFFF</color>
-    <color name="card_background_elevated">#22FFFFFF</color>
+    <color name="card_background">#14FFFFFF</color>
+    <color name="card_background_elevated">#1EFFFFFF</color>
 
 </resources>
