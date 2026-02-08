@@ -3,147 +3,162 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 /**
- * Yeni mesaj oluşturulduğunda push bildirimi gönder
- * Bu fonksiyon Firestore'daki 'messages' koleksiyonunda yeni doküman oluştuğunda tetiklenir
+ * Yeni mesaj oluşturulduğunda push bildirimi gönder.
+ * Firestore 'messages' koleksiyonunda yeni doküman oluştuğunda tetiklenir.
+ *
+ * HYBRID payload kullanır (notification + data):
+ *   FOREGROUND  → onMessageReceived() çağrılır (uygulama kendi yönetir)
+ *   BACKGROUND  → Sistem notification bloğundan otomatik bildirim gösterir
+ *   KILLED      → Sistem notification bloğundan otomatik bildirim gösterir
  */
 exports.sendNotification = functions.firestore
   .document('messages/{messageId}')
   .onCreate(async (snap, context) => {
     const message = snap.data();
     const { coupleCode, senderId, senderName, type, content, vibrationPattern } = message;
-    
-    // Kotlin enum'lar Firestore'a BÜYÜK HARF olarak yazılır (VIBRATION, NOTE, HEARTBEAT)
-    // Tüm karşılaştırmalar için küçük harfe çevir
+
+    // Kotlin enum'lar Firestore'a BÜYÜK HARF olarak yazılır
     const typeLower = (type || 'note').toLowerCase();
     const vibPatternLower = (vibrationPattern || 'gentle').toLowerCase();
-    
-    console.log('Yeni mesaj:', { coupleCode, senderId, type: typeLower, vibrationPattern: vibPatternLower });
-    
+
+    console.log('Yeni mesaj:', {
+      coupleCode,
+      senderId,
+      type: typeLower,
+      vibrationPattern: vibPatternLower,
+      messageId: context.params.messageId,
+    });
+
+    // receiverId dış scope'ta — catch bloğunda da erişilebilir
+    let receiverId = null;
+
     try {
-      // Çift bilgilerini al
+      // ── 1. Çift bilgilerini al ──
       const coupleDoc = await admin.firestore()
         .collection('couples')
         .doc(coupleCode)
         .get();
-      
+
       if (!coupleDoc.exists) {
         console.log('Çift bulunamadı:', coupleCode);
         return null;
       }
-      
+
       const couple = coupleDoc.data();
-      
+
       // Alıcıyı belirle (gönderen dışındaki partner)
-      let receiverId;
-      if (couple.partner1Id === senderId) {
-        receiverId = couple.partner2Id;
-      } else {
-        receiverId = couple.partner1Id;
-      }
-      
+      receiverId = (couple.partner1Id === senderId)
+        ? couple.partner2Id
+        : couple.partner1Id;
+
       if (!receiverId) {
-        console.log('Alıcı bulunamadı');
+        console.log('Alıcı bulunamadı — partner2 henüz katılmamış olabilir');
         return null;
       }
-      
-      // Alıcının FCM token'ını al
+
+      // ── 2. Alıcının FCM token'ını al ──
       const tokenDoc = await admin.firestore()
         .collection('tokens')
         .doc(receiverId)
         .get();
-      
+
       if (!tokenDoc.exists) {
-        console.log('Token bulunamadı:', receiverId);
+        console.log('Token dokümanı bulunamadı:', receiverId);
         return null;
       }
-      
+
       const { fcmToken } = tokenDoc.data();
-      
-      // Bildirim içeriğini hazırla (küçük harfe çevrilmiş type kullan)
+
+      // Token boş/null kontrolü
+      if (!fcmToken || typeof fcmToken !== 'string' || fcmToken.length < 10) {
+        console.log('Geçersiz/boş FCM token:', receiverId, fcmToken);
+        return null;
+      }
+
+      // ── 3. Bildirim içeriğini hazırla ──
       let title, body, pattern;
-      
+
       switch (typeLower) {
         case 'vibration':
           title = `💓 ${senderName || 'Partnerin'}`;
           body = 'Sana bir titreşim gönderdi!';
           pattern = vibPatternLower || 'gentle';
           break;
-        
+
         case 'heartbeat':
           title = `💗 ${senderName || 'Partnerin'}`;
           body = 'Kalp atışı gönderdi!';
           pattern = 'heartbeat';
           break;
-        
+
         case 'note':
           title = `💌 ${senderName || 'Partnerin'}`;
           body = (content && content.length > 100) ? content.substring(0, 97) + '...' : (content || 'Yeni mesaj!');
           pattern = 'gentle';
           break;
-        
+
         case 'chat':
           title = `💬 ${senderName || 'Partnerin'}`;
           body = (content && content.length > 100) ? content.substring(0, 97) + '...' : (content || 'Yeni mesaj!');
           pattern = 'gentle';
           break;
-        
+
         case 'drawing':
           title = `🎨 ${senderName || 'Partnerin'}`;
           body = 'Sana özel bir çizim yaptı!';
           pattern = 'gentle';
           break;
-        
+
         case 'voice':
           title = `🎤 ${senderName || 'Partnerin'}`;
           body = 'Sana bir ses kaydı gönderdi.';
           pattern = 'gentle';
           break;
-        
+
         case 'photo':
           title = `📸 ${senderName || 'Partnerin'}`;
           body = 'Yeni bir fotoğraf gönderdi.';
           pattern = 'gentle';
           break;
-        
+
         default:
           title = `💕 ${senderName || 'Partnerin'}`;
           body = 'Yeni mesaj!';
           pattern = 'gentle';
       }
-      
-      // Titreşim pattern'i
+
       const vibrationTimings = getVibrationPattern(pattern);
-      
-      // FCM HYBRID payload (notification + data)
-      // notification bloğu: Uygulama kapalı/arka plandayken sistem otomatik bildirim gösterir
-      // data bloğu: Uygulama ön plandayken onMessageReceived() ile özel işlem yapılır
-      //
-      // Davranış:
-      //   FOREGROUND  → onMessageReceived() çağrılır, biz bildirim göstermeyiz (broadcast)
-      //   BACKGROUND  → Sistem notification bloğundan otomatik bildirim gösterir
-      //   KILLED      → Sistem notification bloğundan otomatik bildirim gösterir
+
+      // ── 4. FCM HYBRID payload ──
       const payload = {
         token: fcmToken,
-        // Üst düzey notification — sistem bunu arka plan/kapalıda otomatik gösterir
+
+        // notification bloğu — sistem bunu arka plan/kapalıda otomatik gösterir
         notification: {
           title: title,
           body: body,
         },
+
         android: {
           priority: 'high',
-          ttl: 86400000,  // 24 saat (ms) — cihaz çevrimdışıysa mesaj bekler
+          ttl: 86400000, // 24 saat (ms)
           notification: {
             channelId: 'gzmy_channel',
             priority: 'MAX',
+            sound: 'default',
             defaultVibrateTimings: false,
             vibrateTimingsMillis: vibrationTimings.map(String),
             notificationCount: 1,
-            tag: 'gzmy_' + typeLower, // Aynı türden bildirimleri gruplayarak üst üste biner
+            tag: 'gzmy_' + typeLower,
+            // Kilit ekranında da görünsün
+            visibility: 'PUBLIC',
           },
         },
+
         apns: {
           headers: {
             'apns-priority': '10',
+            'apns-push-type': 'alert',
           },
           payload: {
             aps: {
@@ -154,9 +169,12 @@ exports.sendNotification = functions.firestore
               sound: 'default',
               badge: 1,
               'content-available': 1,
+              'mutable-content': 1,
             },
           },
         },
+
+        // data bloğu — foreground'da onMessageReceived() kullanılır
         data: {
           title: title,
           body: body,
@@ -165,23 +183,24 @@ exports.sendNotification = functions.firestore
           senderId: senderId || '',
           senderName: senderName || 'Partnerin',
           messageId: context.params.messageId,
-          coupleCode: coupleCode,
+          coupleCode: coupleCode || '',
           click_action: 'OPEN_APP',
+          timestamp: String(Date.now()),
         },
       };
-      
-      // Bildirimi gönder
+
+      // ── 5. Gönder ──
       const response = await admin.messaging().send(payload);
       console.log('Bildirim gönderildi:', {
         response,
         receiverId,
-        type,
+        type: typeLower,
         pattern,
         messageId: context.params.messageId,
       });
-      
+
       return { success: true, messageId: response };
-      
+
     } catch (error) {
       // Detaylı hata loglama
       const errorInfo = {
@@ -190,14 +209,16 @@ exports.sendNotification = functions.firestore
         messageId: context.params.messageId,
         coupleCode,
         senderId,
+        receiverId,
         timestamp: new Date().toISOString(),
       };
       console.error('BILDIRIM_HATASI:', JSON.stringify(errorInfo));
-      
+
       // Geçersiz token'ı temizle (token expired/unregistered)
       if (
-        error.code === 'messaging/registration-token-not-registered' ||
-        error.code === 'messaging/invalid-registration-token'
+        receiverId &&
+        (error.code === 'messaging/registration-token-not-registered' ||
+         error.code === 'messaging/invalid-registration-token')
       ) {
         console.warn('Geçersiz token siliniyor, receiverId:', receiverId);
         try {
@@ -207,7 +228,7 @@ exports.sendNotification = functions.firestore
           console.error('Token silme hatası:', deleteError.message);
         }
       }
-      
+
       return { success: false, error: errorInfo };
     }
   });
@@ -216,17 +237,13 @@ exports.sendNotification = functions.firestore
  * Titreşim pattern'ini döndür
  */
 function getVibrationPattern(pattern) {
-  // pattern zaten küçük harfe çevrilmiş olarak gelir
   switch (pattern) {
     case 'gentle':
       return [0, 200];
-    
     case 'heartbeat':
       return [0, 100, 100, 100, 300, 200];
-    
     case 'intense':
       return [0, 500, 100, 500];
-    
     default:
       return [0, 200];
   }
@@ -251,9 +268,6 @@ exports.onDrawingUpdated = functions.firestore
     console.log('Drawing updated for couple:', coupleId);
 
     try {
-      // Her iki partner'a da bildirim gönder (gönderen hariç tutmak için
-      // senderId bilgisi yok, bu yüzden her ikisine de gönderilir —
-      // FCMService foreground'da bunu filtreler)
       const partnerIds = [after.partner1Id, after.partner2Id].filter(Boolean);
 
       for (const partnerId of partnerIds) {
@@ -265,7 +279,7 @@ exports.onDrawingUpdated = functions.firestore
         if (!tokenDoc.exists) continue;
 
         const { fcmToken } = tokenDoc.data();
-        if (!fcmToken) continue;
+        if (!fcmToken || fcmToken.length < 10) continue;
 
         const senderName = after.partner1Id === partnerId
           ? after.partner2Name || 'Partnerin'
@@ -275,7 +289,7 @@ exports.onDrawingUpdated = functions.firestore
           token: fcmToken,
           notification: {
             title: `🎨 ${senderName}`,
-            body: 'Yeni bir cizim gonderdi!',
+            body: 'Yeni bir çizim gönderdi!',
           },
           android: {
             priority: 'high',
@@ -283,13 +297,15 @@ exports.onDrawingUpdated = functions.firestore
             notification: {
               channelId: 'gzmy_channel',
               priority: 'MAX',
+              sound: 'default',
               tag: 'gzmy_drawing',
+              visibility: 'PUBLIC',
             },
           },
           data: {
             type: 'drawing',
             title: `🎨 ${senderName}`,
-            body: 'Yeni bir cizim gonderdi!',
+            body: 'Yeni bir çizim gönderdi!',
             drawingUrl: after.latestDrawingUrl,
             coupleCode: coupleId,
             click_action: 'OPEN_APP',
@@ -308,15 +324,15 @@ exports.onDrawingUpdated = functions.firestore
   });
 
 /**
- * Kullanıcı token'ını güncelle (isteğe bağlı)
+ * Kullanıcı token'ını güncelle (callable)
  */
 exports.updateToken = functions.https.onCall(async (data, context) => {
   const { userId, fcmToken } = data;
-  
+
   if (!userId || !fcmToken) {
     throw new functions.https.HttpsError('invalid-argument', 'userId ve fcmToken gerekli');
   }
-  
+
   try {
     await admin.firestore()
       .collection('tokens')
@@ -324,8 +340,9 @@ exports.updateToken = functions.https.onCall(async (data, context) => {
       .set({
         fcmToken: fcmToken,
         lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        platform: 'android',
       });
-    
+
     return { success: true };
   } catch (error) {
     throw new functions.https.HttpsError('internal', error.message);

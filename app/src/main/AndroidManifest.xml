@@ -13,7 +13,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    
+
+    <!-- Pil optimizasyonu muafiyeti — FCM bildirimleri uygulama kapalıyken gelsin -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <application
         android:name=".GzmyApplication"
         android:allowBackup="true"
@@ -50,7 +53,18 @@
             </intent-filter>
         </service>
 
-        <!-- ÖZELLİK 5: Ana Ekran Widget'ı -->
+        <!-- Boot Receiver — Cihaz yeniden başlatıldığında FCM token yenile -->
+        <receiver
+            android:name=".service.BootReceiver"
+            android:exported="true"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Ana Ekran Widget'ı -->
         <receiver
             android:name=".widget.GzmyWidgetProvider"
             android:exported="true">
@@ -70,19 +84,24 @@
             android:theme="@style/Theme.Gzmy"
             tools:ignore="LockedOrientationActivity" />
 
-        <!-- Bildirim Kanalı Meta-Data -->
+        <!-- ═══ FCM / Bildirim Meta-Data ═══ -->
+
+        <!-- Varsayılan bildirim kanalı -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="gzmy_channel" />
-        
+
+        <!-- FCM otomatik init -->
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
             android:value="true" />
-        
+
+        <!-- Varsayılan bildirim ikonu -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_heart" />
-        
+
+        <!-- Varsayılan bildirim rengi -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/primary_pink" />
