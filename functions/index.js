@@ -96,17 +96,36 @@ exports.sendNotification = functions.firestore
       // Titreşim pattern'i
       const vibrationTimings = getVibrationPattern(pattern);
       
-      // FCM bildirimi oluştur - DATA-ONLY payload
-      // NOT: notification bloğu KALDIRILDI. Böylece uygulama arka planda/kapalı
-      // iken de onMessageReceived() çağrılır ve özel titreşim çalışır.
+      // FCM HYBRID payload (notification + data)
+      // notification bloğu: Uygulama kapalı/arka plandayken sistem otomatik bildirim gösterir
+      // data bloğu: Uygulama ön plandayken onMessageReceived() ile özel işlem yapılır
+      //
+      // Davranış:
+      //   FOREGROUND  → onMessageReceived() çağrılır, biz bildirim göstermeyiz (broadcast)
+      //   BACKGROUND  → Sistem notification bloğundan otomatik bildirim gösterir
+      //   KILLED      → Sistem notification bloğundan otomatik bildirim gösterir
       const payload = {
         token: fcmToken,
+        // Üst düzey notification — sistem bunu arka plan/kapalıda otomatik gösterir
+        notification: {
+          title: title,
+          body: body,
+        },
         android: {
-          priority: 'high', // Cihazı uyandırır (data-only mesajlar için kritik)
+          priority: 'high',
+          ttl: 86400000,  // 24 saat (ms) — cihaz çevrimdışıysa mesaj bekler
+          notification: {
+            channelId: 'gzmy_channel',
+            priority: 'MAX',
+            defaultVibrateTimings: false,
+            vibrateTimingsMillis: vibrationTimings.map(String),
+            notificationCount: 1,
+            tag: 'gzmy_' + typeLower, // Aynı türden bildirimleri gruplayarak üst üste biner
+          },
         },
         apns: {
           headers: {
-            'apns-priority': '10', // iOS için yüksek öncelik
+            'apns-priority': '10',
           },
           payload: {
             aps: {

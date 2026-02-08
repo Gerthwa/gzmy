@@ -60,21 +60,34 @@ class FCMService : FirebaseMessagingService() {
         try {
             Log.d(TAG, "=== MESAJ ALINDI ===")
             Log.d(TAG, "Data: ${remoteMessage.data}")
+            Log.d(TAG, "Notification: title=${remoteMessage.notification?.title}, body=${remoteMessage.notification?.body}")
 
             val data = remoteMessage.data
             val type = (data["type"] ?: "note").lowercase()
             val vibrationPattern = (data["vibrationPattern"] ?: "gentle").lowercase()
-            val title = data["title"] ?: "gzmy"
-            val body = data["body"] ?: "Yeni mesaj!"
+            val title = data["title"] ?: remoteMessage.notification?.title ?: "gzmy"
+            val body = data["body"] ?: remoteMessage.notification?.body ?: "Yeni mesaj!"
 
             Log.d(TAG, "İşlenecek: type=$type, pattern=$vibrationPattern, title=$title")
             Log.d(TAG, "isAppInForeground=${GzmyApplication.isAppInForeground}, isChatActive=${ChatFragment.isChatScreenActive}")
 
-            // ÖZELLİK 3: Akıllı Bildirim Yönetimi
+            // ─── HYBRID PAYLOAD DAVRANIŞI ───
+            // notification+data payload ile:
+            //   FOREGROUND  → onMessageReceived() çağrılır (biz yönetiriz)
+            //   BACKGROUND  → Sistem otomatik bildirim gösterir (bu metot çağrılmaz)
+            //   KILLED      → Sistem otomatik bildirim gösterir (bu metot çağrılmaz)
+            //
+            // Bu metot SADECE foreground'da çağrılır. Bu yüzden:
+            //   1. Sistem bildirimini bastır (NotificationManager ile iptal et)
+            //   2. LocalBroadcast ile UI'ı güncelle
+
             if (GzmyApplication.isAppInForeground) {
                 // === FOREGROUND ===
-                // Bildirim gösterme! Sadece LocalBroadcast ile UI'ı güncelle
                 Log.d(TAG, "Uygulama ön planda — sessiz broadcast gönderiliyor")
+
+                // Sistem hybrid notification'dan otomatik bildirim oluşturabilir,
+                // biz ön plandayken bunu istemiyoruz — notification tag ile iptal et
+                cancelSystemNotification(type)
 
                 val broadcastIntent = Intent(GzmyApplication.ACTION_NEW_MESSAGE).apply {
                     putExtra("title", title)
@@ -88,7 +101,7 @@ class FCMService : FirebaseMessagingService() {
                     VibrationManager.performLightTap(this)
                 }
             } else {
-                // === BACKGROUND / KILLED ===
+                // === BACKGROUND (nadir — genelde sistem halleder) ===
                 Log.d(TAG, "Uygulama arka planda — bildirim gösteriliyor")
 
                 // Titreşim çal
@@ -103,11 +116,11 @@ class FCMService : FirebaseMessagingService() {
                     Log.e(TAG, "Titreşim hatası: ${e.message}")
                 }
 
-                // Bildirim göster
+                // Bildirim göster (fallback — normalde sistem halleder)
                 showNotification(title, body, data)
             }
 
-            // ÖZELLİK 5: Widget'ı güncelle (her durumda)
+            // Widget'ı güncelle (her durumda)
             updateWidget(body)
 
             Log.d(TAG, "=== İŞLEM TAMAMLANDI ===")
@@ -116,6 +129,20 @@ class FCMService : FirebaseMessagingService() {
             if (wakeLock.isHeld) {
                 wakeLock.release()
             }
+        }
+    }
+
+    /**
+     * Foreground'da sistem tarafından otomatik oluşturulan hybrid bildirimi iptal et.
+     * Cloud Functions'ta tag: "gzmy_<type>" kullanıyoruz.
+     */
+    private fun cancelSystemNotification(type: String) {
+        try {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            // Sistem, notification tag'i ile bildirim oluşturur
+            nm.cancel("gzmy_$type", 0)
+        } catch (e: Exception) {
+            Log.w(TAG, "Sistem bildirimi iptal edilemedi: ${e.message}")
         }
     }
 
