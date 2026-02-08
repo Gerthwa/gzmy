@@ -132,7 +132,8 @@ fun DrawingScreen(onBack: () -> Unit) {
                 .background(Color.White)
         ) {
             // Consume drawTick to force recomposition
-            val _ = drawTick
+            @Suppress("UNUSED_VARIABLE")
+            val tick = drawTick
 
             Canvas(
                 modifier = Modifier
