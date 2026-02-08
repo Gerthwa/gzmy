@@ -163,9 +163,13 @@ class ChatFragment : Fragment() {
     private fun listenForChatMessages() {
         if (coupleCode.isEmpty()) return
 
+        // NOT: whereEqualTo("type", "CHAT") kaldırıldı.
+        // Çünkü (coupleCode + type + timestamp) composite index'i olmadan
+        // Firestore listener FAILED_PRECONDITION hatası verip hiç çalışmıyordu.
+        // Şimdi mevcut (coupleCode, timestamp) index'ini kullanıyoruz
+        // ve type filtresini Kotlin tarafında yapıyoruz.
         chatListener = db.collection("messages")
             .whereEqualTo("coupleCode", coupleCode)
-            .whereEqualTo("type", "CHAT")
             .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -173,8 +177,10 @@ class ChatFragment : Fragment() {
                     return@addSnapshotListener
                 }
 
+                // Kotlin tarafında CHAT mesajlarını filtrele
                 val messages = snapshot?.documents
                     ?.mapNotNull { it.toObject(Message::class.java) }
+                    ?.filter { it.type == Message.MessageType.CHAT }
                     ?: emptyList()
 
                 chatAdapter.submitList(messages) {
