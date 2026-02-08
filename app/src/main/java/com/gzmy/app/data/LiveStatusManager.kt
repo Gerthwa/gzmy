@@ -33,9 +33,14 @@ object LiveStatusManager {
     @Volatile var partnerName: String = ""
         private set
 
+    // ── Location cached ──
+    @Volatile var partnerLat: Double = 0.0; private set
+    @Volatile var partnerLng: Double = 0.0; private set
+
     // ── Callbacks ──
     interface StatusObserver {
         fun onCoupleUpdated(couple: Couple, myLevel: Int, partnerLevel: Int, partnerName: String)
+        fun onPartnerLocationUpdated(lat: Double, lng: Double) {}
         fun onError(message: String) {}
     }
 
@@ -93,6 +98,29 @@ object LiveStatusManager {
                 myMissLevel = couple.missYouLevel[userId] ?: 0
                 partnerMissLevel = couple.missYouLevel[partnerId] ?: 0
                 partnerName = pName
+
+                // Parse partner location from couple doc
+                val locField = "location_$partnerId"
+                @Suppress("UNCHECKED_CAST")
+                val locMap = snapshot.get(locField) as? Map<String, Any>
+                if (locMap != null) {
+                    val pLat = (locMap["lat"] as? Number)?.toDouble() ?: 0.0
+                    val pLng = (locMap["lng"] as? Number)?.toDouble() ?: 0.0
+                    if (pLat != 0.0 && pLng != 0.0) {
+                        partnerLat = pLat
+                        partnerLng = pLng
+                        observers.forEach { it.onPartnerLocationUpdated(pLat, pLng) }
+                    }
+                }
+
+                // Parse latest drawing URL
+                val drawingUrl = snapshot.getString("latestDrawingUrl")
+                if (!drawingUrl.isNullOrEmpty()) {
+                    context.getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("drawing_url", drawingUrl)
+                        .apply()
+                }
 
                 // Write to widget shared prefs
                 context.getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)

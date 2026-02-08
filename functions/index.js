@@ -215,6 +215,81 @@ function getVibrationPattern(pattern) {
 }
 
 /**
+ * Çizim güncellendiğinde partner'a bildirim gönder.
+ * couples/{coupleId} dokümanındaki latestDrawingUrl alanı değiştiğinde tetiklenir.
+ */
+exports.onDrawingUpdated = functions.firestore
+  .document('couples/{coupleId}')
+  .onUpdate(async (change, context) => {
+    const before = change.before.data();
+    const after = change.after.data();
+
+    // Sadece latestDrawingUrl değiştiyse devam et
+    if (!after.latestDrawingUrl || after.latestDrawingUrl === before.latestDrawingUrl) {
+      return null;
+    }
+
+    const coupleId = context.params.coupleId;
+    console.log('Drawing updated for couple:', coupleId);
+
+    try {
+      // Her iki partner'a da bildirim gönder (gönderen hariç tutmak için
+      // senderId bilgisi yok, bu yüzden her ikisine de gönderilir —
+      // FCMService foreground'da bunu filtreler)
+      const partnerIds = [after.partner1Id, after.partner2Id].filter(Boolean);
+
+      for (const partnerId of partnerIds) {
+        const tokenDoc = await admin.firestore()
+          .collection('tokens')
+          .doc(partnerId)
+          .get();
+
+        if (!tokenDoc.exists) continue;
+
+        const { fcmToken } = tokenDoc.data();
+        if (!fcmToken) continue;
+
+        const senderName = after.partner1Id === partnerId
+          ? after.partner2Name || 'Partnerin'
+          : after.partner1Name || 'Partnerin';
+
+        const payload = {
+          token: fcmToken,
+          notification: {
+            title: `🎨 ${senderName}`,
+            body: 'Yeni bir cizim gonderdi!',
+          },
+          android: {
+            priority: 'high',
+            ttl: 86400000,
+            notification: {
+              channelId: 'gzmy_channel',
+              priority: 'MAX',
+              tag: 'gzmy_drawing',
+            },
+          },
+          data: {
+            type: 'drawing',
+            title: `🎨 ${senderName}`,
+            body: 'Yeni bir cizim gonderdi!',
+            drawingUrl: after.latestDrawingUrl,
+            coupleCode: coupleId,
+            click_action: 'OPEN_APP',
+          },
+        };
+
+        await admin.messaging().send(payload);
+        console.log('Drawing notification sent to:', partnerId);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Drawing notification error:', error.message);
+      return { success: false };
+    }
+  });
+
+/**
  * Kullanıcı token'ını güncelle (isteğe bağlı)
  */
 exports.updateToken = functions.https.onCall(async (data, context) => {

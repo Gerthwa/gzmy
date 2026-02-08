@@ -337,6 +337,103 @@
 
         </FrameLayout>
 
+        <!-- ════════════ OUR MAP (Distance Bridge) ════════════ -->
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_glass_card_accent"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="20dp">
+
+                <!-- Section header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Bizim Haritamız"
+                        style="@style/TextAppearance.Gzmy.SectionTitle" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🧭"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+                <!-- Arrow + Distance row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Direction arrow -->
+                    <ImageView
+                        android:id="@+id/ivDirectionArrow"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_direction_arrow"
+                        android:contentDescription="Yön oku"
+                        android:layout_marginEnd="20dp" />
+
+                    <!-- Distance info -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="— km"
+                            android:textColor="@color/primary_pink"
+                            android:textSize="28sp"
+                            android:fontFamily="sans-serif-black" />
+
+                        <TextView
+                            android:id="@+id/tvDirection"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Konum bekleniyor..."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            android:layout_marginTop="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvLocationStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📍 Konum izni gerekiyor"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="11sp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
         <!-- ════════════ QUICK EMOJI ════════════ -->
 
         <FrameLayout
@@ -586,6 +683,23 @@
             </LinearLayout>
 
         </FrameLayout>
+
+        <!-- ════════════ DRAWING BUTTON ════════════ -->
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOpenDrawing"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="🎨 Çizim Gönder"
+            android:textAllCaps="false"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:letterSpacing="0.04"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_gradient_pill"
+            app:backgroundTint="@null"
+            app:cornerRadius="28dp"
+            app:rippleColor="@color/ripple_white" />
 
     </LinearLayout>
 

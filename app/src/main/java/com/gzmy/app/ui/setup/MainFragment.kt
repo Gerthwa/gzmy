@@ -1,11 +1,13 @@
 package com.gzmy.app.ui.setup
 
+import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +15,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -24,9 +28,13 @@ import com.gzmy.app.R
 import com.gzmy.app.data.LiveStatusManager
 import com.gzmy.app.data.model.Couple
 import com.gzmy.app.data.model.Message
+import com.gzmy.app.data.repository.MessageRepository
 import com.gzmy.app.databinding.FragmentMainBinding
+import com.gzmy.app.location.LocationTracker
 import com.gzmy.app.ui.chat.ChatFragment
+import com.gzmy.app.ui.drawing.DrawingActivity
 import com.gzmy.app.util.AnimationUtils as Anim
+import com.gzmy.app.util.GeoUtils
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,6 +48,7 @@ class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
     private val db = FirebaseFirestore.getInstance()
+    private lateinit var repo: MessageRepository
     private var coupleCode: String = ""
     private var userId: String = ""
     private var userName: String = ""
@@ -49,6 +58,22 @@ class MainFragment : Fragment() {
     private var sliderWriteJob: Job? = null
     private var messagesListener: ListenerRegistration? = null
     private var isUpdatingFromRemote = false
+    private var currentArrowRotation = 0f
+
+    // Location permission launcher
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (fine || coarse) {
+            startLocationTracking()
+        } else {
+            if (_binding != null) {
+                binding.tvLocationStatus.text = "📍 Konum izni reddedildi"
+            }
+        }
+    }
 
     /** LiveStatusManager observer — receives real-time couple updates */
     private val coupleObserver = object : LiveStatusManager.StatusObserver {
@@ -74,6 +99,11 @@ class MainFragment : Fragment() {
             }
             isUpdatingFromRemote = false
         }
+
+        override fun onPartnerLocationUpdated(lat: Double, lng: Double) {
+            if (_binding == null) return
+            updateCompassUI(lat, lng)
+        }
     }
 
     override fun onCreateView(
@@ -88,6 +118,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        repo = MessageRepository(requireContext())
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         coupleCode = prefs.getString("couple_code", "") ?: ""
         userId = prefs.getString("user_id", "") ?: ""
@@ -116,10 +147,12 @@ class MainFragment : Fragment() {
         setupVibrationButtons()
         setupEmojiButtons()
         setupNoteButton()
+        setupDrawingButton()
         setupLogoutButton()
 
         listenForMessages()
         listenForCoupleUpdates()
+        requestLocationPermission()
 
         // Ambient animations
         Anim.floatUpDown(binding.lottieHeart, amplitude = 6f, duration = 3500L)
@@ -349,25 +382,24 @@ class MainFragment : Fragment() {
 
         Toast.makeText(context, "Gönderiliyor...", Toast.LENGTH_SHORT).show()
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.IO) {
-                    val message = Message(
-                        id = UUID.randomUUID().toString(),
-                        coupleCode = coupleCode,
-                        senderId = userId,
-                        senderName = userName,
-                        type = Message.MessageType.VIBRATION,
-                        vibrationPattern = pattern,
-                        content = "$patternLabel gönderdi",
-                        timestamp = Timestamp.now()
-                    )
-                    db.collection("messages").add(message).await()
+                repo.sendMessage(
+                    coupleCode = coupleCode,
+                    senderId = userId,
+                    senderName = userName,
+                    type = Message.MessageType.VIBRATION,
+                    content = "$patternLabel gönderdi",
+                    vibrationPattern = pattern
+                )
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "$patternLabel gönderildi! 💕", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, "$patternLabel gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Log.e("Gzmy", "Error: ${e.message}", e)
-                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -382,24 +414,23 @@ class MainFragment : Fragment() {
             return
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.IO) {
-                    val message = Message(
-                        id = UUID.randomUUID().toString(),
-                        coupleCode = coupleCode,
-                        senderId = userId,
-                        senderName = userName,
-                        type = Message.MessageType.NOTE,
-                        content = content,
-                        timestamp = Timestamp.now()
-                    )
-                    db.collection("messages").add(message).await()
+                repo.sendMessage(
+                    coupleCode = coupleCode,
+                    senderId = userId,
+                    senderName = userName,
+                    type = Message.MessageType.NOTE,
+                    content = content
+                )
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Mesaj gönderildi! 💕", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, "Mesaj gönderildi! 💕", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Log.e("Gzmy", "Error sending note: ${e.message}", e)
-                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -476,8 +507,96 @@ class MainFragment : Fragment() {
         }
     }
 
+    // =============== KONUM / PUSULA ===============
+
+    private fun requestLocationPermission() {
+        val fine = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+        val coarse = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+
+        if (fine == PackageManager.PERMISSION_GRANTED || coarse == PackageManager.PERMISSION_GRANTED) {
+            startLocationTracking()
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    private fun startLocationTracking() {
+        if (_binding != null) {
+            binding.tvLocationStatus.text = "📍 Konum takibi aktif"
+        }
+
+        LocationTracker.addListener(locationListener)
+        LocationTracker.start(requireContext())
+
+        // If partner location is already cached, update UI
+        val pLat = LiveStatusManager.partnerLat
+        val pLng = LiveStatusManager.partnerLng
+        if (pLat != 0.0 && pLng != 0.0) {
+            updateCompassUI(pLat, pLng)
+        }
+    }
+
+    private val locationListener = object : LocationTracker.LocationListener {
+        override fun onMyLocationUpdated(lat: Double, lng: Double) {
+            // Re-calculate distance/bearing with partner
+            val pLat = LiveStatusManager.partnerLat
+            val pLng = LiveStatusManager.partnerLng
+            if (pLat != 0.0 && pLng != 0.0) {
+                updateCompassUI(pLat, pLng)
+            }
+        }
+    }
+
+    private fun updateCompassUI(partnerLat: Double, partnerLng: Double) {
+        if (_binding == null) return
+
+        val myLat = LocationTracker.lastLat
+        val myLng = LocationTracker.lastLng
+        if (myLat == 0.0 && myLng == 0.0) {
+            binding.tvDistance.text = "—"
+            binding.tvDirection.text = "Konumun henüz alınamadı"
+            return
+        }
+
+        val distance = GeoUtils.haversineDistance(myLat, myLng, partnerLat, partnerLng)
+        val bearing = GeoUtils.bearing(myLat, myLng, partnerLat, partnerLng)
+        val direction = GeoUtils.bearingToDirection(bearing)
+
+        binding.tvDistance.text = GeoUtils.formatDistance(distance)
+        binding.tvDirection.text = "$direction yönünde"
+        binding.tvLocationStatus.text = "📍 Konum aktif"
+
+        // Smooth rotate arrow
+        val targetRotation = bearing
+        ObjectAnimator.ofFloat(binding.ivDirectionArrow, View.ROTATION, currentArrowRotation, targetRotation).apply {
+            duration = 600
+            interpolator = AccelerateDecelerateInterpolator()
+            start()
+        }
+        currentArrowRotation = targetRotation
+    }
+
+    // =============== ÇİZİM ===============
+
+    private fun setupDrawingButton() {
+        binding.btnOpenDrawing.setOnClickListener { v ->
+            Anim.pressScale(v) {
+                VibrationManager.performHeavyClick(requireContext())
+                val intent = Intent(requireContext(), DrawingActivity::class.java)
+                startActivity(intent)
+            }
+        }
+    }
+
     private fun logout() {
         LiveStatusManager.reset()
+        LocationTracker.removeListener(locationListener)
+        LocationTracker.stop()
         com.gzmy.app.widget.WidgetUpdateWorker.cancel(requireContext())
 
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
@@ -492,6 +611,8 @@ class MainFragment : Fragment() {
     override fun onDestroyView() {
         LiveStatusManager.removeObserver(coupleObserver)
         LiveStatusManager.stop()
+        LocationTracker.removeListener(locationListener)
+        LocationTracker.stop()
         messagesListener?.remove()
         sliderWriteJob?.cancel()
         context?.let {

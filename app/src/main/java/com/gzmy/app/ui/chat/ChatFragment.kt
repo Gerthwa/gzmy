@@ -11,39 +11,37 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
 import com.gzmy.app.data.model.Message
+import com.gzmy.app.data.repository.MessageRepository
 import com.gzmy.app.databinding.FragmentChatBinding
 import com.gzmy.app.util.AnimationUtils as Anim
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class ChatFragment : Fragment() {
 
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
-    private val db = FirebaseFirestore.getInstance()
     private lateinit var chatAdapter: ChatAdapter
+    private lateinit var repo: MessageRepository
 
     private var coupleCode: String = ""
     private var userId: String = ""
     private var userName: String = ""
     private var partnerName: String = ""
-    private var chatListener: ListenerRegistration? = null
+    private var remoteSyncListener: ListenerRegistration? = null
 
-    /** ChatFragment açıkken true — FCMService bunu kontrol eder */
     companion object {
         @Volatile
         var isChatScreenActive: Boolean = false
@@ -61,6 +59,8 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        repo = MessageRepository(requireContext())
+
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         coupleCode = prefs.getString("couple_code", "") ?: ""
         userId = prefs.getString("user_id", "") ?: ""
@@ -70,9 +70,15 @@ class ChatFragment : Fragment() {
         setupRecyclerView()
         setupSendButton()
         setupBackButton()
-        listenForChatMessages()
 
-        // LocalBroadcast'i dinle (foreground'da sessiz mesaj ekleme için)
+        // Room Flow: UI her zaman güncel (offline dahil)
+        observeChatMessages()
+
+        // Firestore → Room sync (remote mesajları Room'a yazar)
+        if (coupleCode.isNotEmpty()) {
+            remoteSyncListener = repo.startRemoteSync(coupleCode)
+        }
+
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             newMessageReceiver,
             IntentFilter(GzmyApplication.ACTION_NEW_MESSAGE)
@@ -90,7 +96,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun loadPartnerName() {
-        db.collection("couples").document(coupleCode).get()
+        FirebaseFirestore.getInstance().collection("couples").document(coupleCode).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
                     val couple = doc.toObject(com.gzmy.app.data.model.Couple::class.java)
@@ -112,7 +118,7 @@ class ChatFragment : Fragment() {
             }
             adapter = chatAdapter
             setHasFixedSize(true)
-            itemAnimator?.changeDuration = 0 // Flicker onleme
+            itemAnimator?.changeDuration = 0
             setItemViewCacheSize(20)
         }
     }
@@ -136,76 +142,56 @@ class ChatFragment : Fragment() {
         }
     }
 
+    /** Offline-First: Room'a yaz → Firestore'a göndermeyi dene */
     private fun sendChatMessage(content: String) {
         if (coupleCode.isEmpty()) return
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.IO) {
-                    val message = Message(
-                        id = UUID.randomUUID().toString(),
-                        coupleCode = coupleCode,
-                        senderId = userId,
-                        senderName = userName,
-                        type = Message.MessageType.CHAT,
-                        content = content,
-                        timestamp = Timestamp.now()
-                    )
-                    db.collection("messages").add(message).await()
-                }
+                repo.sendMessage(
+                    coupleCode = coupleCode,
+                    senderId = userId,
+                    senderName = userName,
+                    type = Message.MessageType.CHAT,
+                    content = content
+                )
             } catch (e: Exception) {
                 Log.e("ChatFragment", "Mesaj gönderme hatası: ${e.message}", e)
-                Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                launch(Dispatchers.Main) {
+                    Toast.makeText(context, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
-    private fun listenForChatMessages() {
+    /** Room Flow ile chat mesajlarını dinle — offline'da da çalışır */
+    private fun observeChatMessages() {
         if (coupleCode.isEmpty()) return
 
-        // NOT: whereEqualTo("type", "CHAT") kaldırıldı.
-        // Çünkü (coupleCode + type + timestamp) composite index'i olmadan
-        // Firestore listener FAILED_PRECONDITION hatası verip hiç çalışmıyordu.
-        // Şimdi mevcut (coupleCode, timestamp) index'ini kullanıyoruz
-        // ve type filtresini Kotlin tarafında yapıyoruz.
-        chatListener = db.collection("messages")
-            .whereEqualTo("coupleCode", coupleCode)
-            .orderBy("timestamp", Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e("ChatFragment", "Listen hatası: ${error.message}")
-                    return@addSnapshotListener
-                }
-
-                // Kotlin tarafında CHAT mesajlarını filtrele
-                val messages = snapshot?.documents
-                    ?.mapNotNull { it.toObject(Message::class.java) }
-                    ?.filter { it.type == Message.MessageType.CHAT }
-                    ?: emptyList()
-
-                chatAdapter.submitList(messages) {
-                    // Listeye yeni mesaj eklenince en alta kaydır
-                    if (messages.isNotEmpty() && _binding != null) {
-                        binding.rvMessages.scrollToPosition(messages.size - 1)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                repo.getChatMessages(coupleCode).collectLatest { messages ->
+                    chatAdapter.submitList(messages) {
+                        if (messages.isNotEmpty() && _binding != null) {
+                            binding.rvMessages.scrollToPosition(messages.size - 1)
+                        }
                     }
                 }
             }
+        }
     }
 
-    /** Foreground'da FCMService'ten gelen broadcast */
     private val newMessageReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent?) {
-            // SnapshotListener zaten mesajları güncelliyor,
-            // burada sadece hafif haptic feedback veriyoruz
             ctx?.let { VibrationManager.performLightTap(it) }
         }
     }
 
     override fun onDestroyView() {
-        chatListener?.remove()
+        remoteSyncListener?.remove()
         context?.let {
             try { LocalBroadcastManager.getInstance(it).unregisterReceiver(newMessageReceiver) }
-            catch (_: Exception) { /* receiver zaten kayıtlı değildi */ }
+            catch (_: Exception) {}
         }
         _binding = null
         super.onDestroyView()

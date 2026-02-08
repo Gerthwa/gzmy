@@ -109,7 +109,7 @@ class FCMService : FirebaseMessagingService() {
                     when (type) {
                         "vibration" -> vibrateByPattern(vibrationPattern)
                         "heartbeat" -> VibrationManager.performHeartbeat(this)
-                        "note", "chat" -> VibrationManager.performLightTap(this)
+                        "note", "chat", "drawing" -> VibrationManager.performLightTap(this)
                         else -> VibrationManager.performLightTap(this)
                     }
                 } catch (e: Exception) {
@@ -118,6 +118,13 @@ class FCMService : FirebaseMessagingService() {
 
                 // Bildirim göster (fallback — normalde sistem halleder)
                 showNotification(title, body, data)
+            }
+
+            // Drawing URL varsa widget prefs'e kaydet
+            val drawingUrl = data["drawingUrl"]
+            if (!drawingUrl.isNullOrEmpty()) {
+                getSharedPreferences("gzmy_widget", Context.MODE_PRIVATE)
+                    .edit().putString("drawing_url", drawingUrl).apply()
             }
 
             // Widget'ı güncelle (her durumda)

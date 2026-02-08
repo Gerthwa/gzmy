@@ -5,8 +5,10 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import com.gzmy.app.data.local.AppDatabase
 import com.gzmy.app.lifecycle.AppLifecycleObserver
 import com.gzmy.app.widget.WidgetUpdateWorker
+import com.gzmy.app.worker.SyncMessagesWorker
 
 class GzmyApplication : Application() {
 
@@ -25,11 +27,17 @@ class GzmyApplication : Application() {
         super.onCreate()
         createNotificationChannel()
 
+        // Initialize Room database
+        AppDatabase.getInstance(this)
+
         // Register lifecycle observer (foreground/background tracking)
         AppLifecycleObserver.register()
 
         // Schedule periodic widget updates (every 30 min)
         WidgetUpdateWorker.schedule(this)
+
+        // Enqueue offline message sync (runs when network available)
+        SyncMessagesWorker.enqueue(this)
     }
 
     private fun createNotificationChannel() {
