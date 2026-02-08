@@ -87,6 +87,24 @@ exports.sendNotification = functions.firestore
           pattern = 'gentle';
           break;
         
+        case 'drawing':
+          title = `🎨 ${senderName || 'Partnerin'}`;
+          body = 'Sana özel bir çizim yaptı!';
+          pattern = 'gentle';
+          break;
+        
+        case 'voice':
+          title = `🎤 ${senderName || 'Partnerin'}`;
+          body = 'Sana bir ses kaydı gönderdi.';
+          pattern = 'gentle';
+          break;
+        
+        case 'photo':
+          title = `📸 ${senderName || 'Partnerin'}`;
+          body = 'Yeni bir fotoğraf gönderdi.';
+          pattern = 'gentle';
+          break;
+        
         default:
           title = `💕 ${senderName || 'Partnerin'}`;
           body = 'Yeni mesaj!';
@@ -207,7 +225,7 @@ function getVibrationPattern(pattern) {
       return [0, 100, 100, 100, 300, 200];
     
     case 'intense':
-      return [0, 500];
+      return [0, 500, 100, 500];
     
     default:
       return [0, 200];
