@@ -9,6 +9,7 @@ import com.gzmy.app.data.local.AppDatabase
 import com.gzmy.app.data.local.MessageEntity
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.data.model.Couple
+import com.gzmy.app.worker.SyncMessagesWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,7 @@ import java.util.UUID
  *   - Room Flow feeds the UI (always has data, even offline)
  *   - Firestore snapshotListener writes into Room (remote → local sync)
  */
-class MessageRepository(context: Context) {
+class MessageRepository(private val context: Context) {
 
     private val db = FirebaseFirestore.getInstance()
     private val dao = AppDatabase.getInstance(context).messageDao()
@@ -81,9 +82,9 @@ class MessageRepository(context: Context) {
         dao.insert(entity)
         Log.d(TAG, "Saved to Room (unsynced): ${message.id}")
 
-        // 2. Firestore'a gönder
+        // 2. Firestore'a gönder (aynı ID ile, duplikasyon önleme)
         try {
-            db.collection("messages").add(message).await()
+            db.collection("messages").document(message.id).set(message).await()
             dao.markAsSynced(message.id)
             Log.d(TAG, "Synced to Firestore: ${message.id}")
 
@@ -93,6 +94,8 @@ class MessageRepository(context: Context) {
         } catch (e: Exception) {
             Log.w(TAG, "Firestore write failed (will retry via worker): ${e.message}")
             // Room'da isSynced=false kalır, SyncMessagesWorker halledecek
+            // Worker'ı tekrar enqueue et (internet gelince calisacak)
+            SyncMessagesWorker.enqueue(context)
         }
     }
 

@@ -67,7 +67,7 @@ class SyncMessagesWorker(
             for (entity in unsynced) {
                 try {
                     val message = entity.toMessage()
-                    db.collection("messages").add(message).await()
+                    db.collection("messages").document(entity.id).set(message).await()
                     dao.markAsSynced(entity.id)
                     successCount++
                 } catch (e: Exception) {
