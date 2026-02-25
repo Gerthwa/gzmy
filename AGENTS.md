@@ -21,7 +21,7 @@ Set via `~/.bashrc`:
 If Gradle complains about SDK location, ensure `local.properties` contains `sdk.dir=/opt/android-sdk`.
 
 ### google-services.json
-A placeholder `app/google-services.json` is used for builds. The real file is injected from the `GOOGLE_SERVICES_JSON` secret in CI. The placeholder allows compilation but Firebase features won't work at runtime without a real config.
+`app/google-services.json` contains the real Firebase config for project `gzmy-9fd2e`. It is gitignored and injected from the `GOOGLE_SERVICES_JSON` secret in CI. If missing, the update script creates a placeholder that allows compilation but Firebase features won't work at runtime without the real config.
 
 ### Common commands
 | Task | Command |
