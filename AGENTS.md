@@ -38,3 +38,6 @@ If Gradle complains about SDK location, ensure `local.properties` contains `sdk.
 - There is no lockfile (`package-lock.json`) in `functions/`. Dependency versions may drift.
 - The Gradle wrapper (`gradlew`) needs execute permission (`chmod +x gradlew`).
 - `nvm use 20` must be run before working with Cloud Functions (the default nvm node version is 22).
+- This is a native Android app — no emulator is available in the cloud VM. Testing is limited to building APKs, running lint, and unit tests. Use `aapt dump badging` on the APK to inspect package metadata.
+- Cloud Functions can be validated by requiring the module in Node.js: `node -e "console.log(Object.keys(require('./index.js')))"` from `functions/`.
+- Kotlin compiler warnings about deprecated `LocalBroadcastManager` are expected and benign.
