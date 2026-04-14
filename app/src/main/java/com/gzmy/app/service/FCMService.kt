@@ -7,11 +7,11 @@ import android.content.Intent
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
+import com.gzmy.app.data.AppEventBus
+import com.gzmy.app.GzmyApplication
 import com.gzmy.app.ui.chat.ChatFragment
 import com.gzmy.app.ui.main.MainActivity
 import com.gzmy.app.util.VibrationManager
@@ -85,12 +85,13 @@ class FCMService : FirebaseMessagingService() {
                 // Sistem hybrid notification'dan otomatik bildirim oluşturabilir
                 cancelSystemNotification(type)
 
-                val broadcastIntent = Intent(GzmyApplication.ACTION_NEW_MESSAGE).apply {
-                    putExtra("title", title)
-                    putExtra("body", body)
-                    putExtra("type", type)
-                }
-                LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+                AppEventBus.emitNewMessage(
+                    AppEventBus.NewMessageEvent(
+                        title = title,
+                        body = body,
+                        type = type
+                    )
+                )
 
                 // Chat ekranında değilsek hafif bir titreşim ver
                 if (!ChatFragment.isChatScreenActive) {

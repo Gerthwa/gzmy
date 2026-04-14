@@ -3,10 +3,8 @@ package com.gzmy.app.ui.setup
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -18,13 +16,13 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
+import com.gzmy.app.data.AppEventBus
 import com.gzmy.app.data.LiveStatusManager
 import com.gzmy.app.data.model.Couple
 import com.gzmy.app.data.model.Message
@@ -38,8 +36,10 @@ import com.gzmy.app.util.GeoUtils
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.withContext
 
 class MainFragment : Fragment() {
@@ -155,11 +155,7 @@ class MainFragment : Fragment() {
         // Ambient animations — premium layered motion
         Anim.floatUpDown(binding.lottieHeart, amplitude = 7f, duration = 3500L)
 
-        // Foreground broadcast'i dinle
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
-            newMessageReceiver,
-            IntentFilter(GzmyApplication.ACTION_NEW_MESSAGE)
-        )
+        observeForegroundEvents()
 
         // Kartların staggered giriş animasyonu
         animateEntrance()
@@ -456,7 +452,7 @@ class MainFragment : Fragment() {
                 val lastMessage = snapshot.documents
                     .mapNotNull { it.toObject(Message::class.java) }
                     .filter { it.senderId != userId }
-                    .maxByOrNull { it.timestamp?.toDate()?.time ?: 0 }
+                    .maxByOrNull { it.timestamp.toDate().time }
 
                 lastMessage?.let { message ->
                     Log.d("Gzmy", "New message from ${message.senderName}: ${message.content}")
@@ -497,11 +493,13 @@ class MainFragment : Fragment() {
         }
     }
 
-    /** Foreground'da sessiz mesaj alımı */
-    private val newMessageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val body = intent?.getStringExtra("body") ?: return
-            showReceivedMessage(body)
+    private fun observeForegroundEvents() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.newMessageEvents.collectLatest { event ->
+                    showReceivedMessage(event.body)
+                }
+            }
         }
     }
 
@@ -613,10 +611,6 @@ class MainFragment : Fragment() {
         LocationTracker.stop()
         messagesListener?.remove()
         sliderWriteJob?.cancel()
-        context?.let {
-            try { LocalBroadcastManager.getInstance(it).unregisterReceiver(newMessageReceiver) }
-            catch (_: Exception) { /* receiver zaten kayıtlı değildi */ }
-        }
         _binding = null
         super.onDestroyView()
     }

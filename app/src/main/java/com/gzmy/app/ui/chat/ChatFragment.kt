@@ -1,9 +1,6 @@
 package com.gzmy.app.ui.chat
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,12 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.gzmy.app.GzmyApplication
 import com.gzmy.app.R
+import com.gzmy.app.data.AppEventBus
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.data.repository.MessageRepository
 import com.gzmy.app.databinding.FragmentChatBinding
@@ -79,10 +75,7 @@ class ChatFragment : Fragment() {
             remoteSyncListener = repo.startRemoteSync(coupleCode)
         }
 
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
-            newMessageReceiver,
-            IntentFilter(GzmyApplication.ACTION_NEW_MESSAGE)
-        )
+        observeForegroundEvents()
     }
 
     override fun onResume() {
@@ -181,18 +174,18 @@ class ChatFragment : Fragment() {
         }
     }
 
-    private val newMessageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(ctx: Context?, intent: Intent?) {
-            ctx?.let { VibrationManager.performLightTap(it) }
+    private fun observeForegroundEvents() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.newMessageEvents.collectLatest {
+                    VibrationManager.performLightTap(requireContext())
+                }
+            }
         }
     }
 
     override fun onDestroyView() {
         remoteSyncListener?.remove()
-        context?.let {
-            try { LocalBroadcastManager.getInstance(it).unregisterReceiver(newMessageReceiver) }
-            catch (_: Exception) {}
-        }
         _binding = null
         super.onDestroyView()
     }

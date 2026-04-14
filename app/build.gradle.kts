@@ -108,9 +108,6 @@ dependencies {
     // Image Loading (widget drawing)
     implementation("io.coil-kt:coil:2.5.0")
     
-    // LocalBroadcastManager
-    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
-    
     // Lottie
     implementation("com.airbnb.android:lottie:6.3.0")
     

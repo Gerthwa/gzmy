@@ -27,7 +27,6 @@ class GzmyApplication : Application() {
         val isAppInForeground: Boolean
             get() = AppLifecycleObserver.isInForeground
 
-        const val ACTION_NEW_MESSAGE = "com.gzmy.app.NEW_MESSAGE"
     }
 
     override fun onCreate() {
