@@ -21,7 +21,8 @@ class BootReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+        val action = intent?.action
+        if (action != Intent.ACTION_BOOT_COMPLETED && action != "android.intent.action.QUICKBOOT_POWERON") return
 
         Log.d(TAG, "Cihaz yeniden başlatıldı — FCM token yenileniyor")
 

@@ -45,7 +45,6 @@ Thumbs.db
 
 # Node modules (for Firebase functions)
 functions/node_modules/
-functions/package-lock.json
 functions/.env
 
 # IDE

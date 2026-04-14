@@ -17,6 +17,15 @@ exports.sendNotification = functions.firestore
     const message = snap.data();
     const { coupleCode, senderId, senderName, type, content, vibrationPattern } = message;
 
+    if (!coupleCode || !senderId) {
+      console.error('Eksik message alanı:', {
+        messageId: context.params.messageId,
+        coupleCode,
+        senderId,
+      });
+      return null;
+    }
+
     // Kotlin enum'lar Firestore'a BÜYÜK HARF olarak yazılır
     const typeLower = (type || 'note').toLowerCase();
     const vibPatternLower = (vibrationPattern || 'gentle').toLowerCase();
@@ -215,11 +224,11 @@ exports.sendNotification = functions.firestore
       console.error('BILDIRIM_HATASI:', JSON.stringify(errorInfo));
 
       // Geçersiz token'ı temizle (token expired/unregistered)
-      if (
-        receiverId &&
-        (error.code === 'messaging/registration-token-not-registered' ||
-         error.code === 'messaging/invalid-registration-token')
-      ) {
+      const isInvalidTokenError =
+        error.code === 'messaging/registration-token-not-registered' ||
+        error.code === 'messaging/invalid-registration-token';
+
+      if (receiverId && isInvalidTokenError) {
         console.warn('Geçersiz token siliniyor, receiverId:', receiverId);
         try {
           await admin.firestore().collection('tokens').doc(receiverId).delete();
@@ -227,9 +236,11 @@ exports.sendNotification = functions.firestore
         } catch (deleteError) {
           console.error('Token silme hatası:', deleteError.message);
         }
+        // Permanent failure: token artık geçersiz, retry gerekmez.
+        return { success: false, error: errorInfo, permanent: true };
       }
-
-      return { success: false, error: errorInfo };
+      // Transient failure: throw to allow automatic retry.
+      throw error;
     }
   });
 
@@ -267,60 +278,73 @@ exports.onDrawingUpdated = functions.firestore
     const coupleId = context.params.coupleId;
     console.log('Drawing updated for couple:', coupleId);
 
-    try {
-      const partnerIds = [after.partner1Id, after.partner2Id].filter(Boolean);
+    const partnerIds = [after.partner1Id, after.partner2Id].filter(Boolean);
+    const sendResults = await Promise.allSettled(partnerIds.map(async (partnerId) => {
+      const tokenDoc = await admin.firestore()
+        .collection('tokens')
+        .doc(partnerId)
+        .get();
 
-      for (const partnerId of partnerIds) {
-        const tokenDoc = await admin.firestore()
-          .collection('tokens')
-          .doc(partnerId)
-          .get();
-
-        if (!tokenDoc.exists) continue;
-
-        const { fcmToken } = tokenDoc.data();
-        if (!fcmToken || fcmToken.length < 10) continue;
-
-        const senderName = after.partner1Id === partnerId
-          ? after.partner2Name || 'Partnerin'
-          : after.partner1Name || 'Partnerin';
-
-        const payload = {
-          token: fcmToken,
-          notification: {
-            title: `🎨 ${senderName}`,
-            body: 'Yeni bir çizim gönderdi!',
-          },
-          android: {
-            priority: 'high',
-            ttl: 86400000,
-            notification: {
-              channelId: 'gzmy_channel',
-              priority: 'MAX',
-              sound: 'default',
-              tag: 'gzmy_drawing',
-              visibility: 'PUBLIC',
-            },
-          },
-          data: {
-            type: 'drawing',
-            title: `🎨 ${senderName}`,
-            body: 'Yeni bir çizim gönderdi!',
-            drawingUrl: after.latestDrawingUrl,
-            coupleCode: coupleId,
-            click_action: 'OPEN_APP',
-          },
-        };
-
-        await admin.messaging().send(payload);
-        console.log('Drawing notification sent to:', partnerId);
+      if (!tokenDoc.exists) {
+        console.log('Token bulunamadı (drawing):', partnerId);
+        return { partnerId, skipped: true, reason: 'no-token-doc' };
       }
 
-      return { success: true };
-    } catch (error) {
-      console.error('Drawing notification error:', error.message);
-      return { success: false };
+      const { fcmToken } = tokenDoc.data();
+      if (!fcmToken || fcmToken.length < 10) {
+        console.log('Geçersiz token (drawing):', partnerId);
+        return { partnerId, skipped: true, reason: 'invalid-token' };
+      }
+
+      const senderName = after.partner1Id === partnerId
+        ? after.partner2Name || 'Partnerin'
+        : after.partner1Name || 'Partnerin';
+
+      const payload = {
+        token: fcmToken,
+        notification: {
+          title: `🎨 ${senderName}`,
+          body: 'Yeni bir çizim gönderdi!',
+        },
+        android: {
+          priority: 'high',
+          ttl: 86400000,
+          notification: {
+            channelId: 'gzmy_channel',
+            priority: 'MAX',
+            sound: 'default',
+            tag: 'gzmy_drawing',
+            visibility: 'PUBLIC',
+          },
+        },
+        data: {
+          type: 'drawing',
+          title: `🎨 ${senderName}`,
+          body: 'Yeni bir çizim gönderdi!',
+          drawingUrl: after.latestDrawingUrl,
+          coupleCode: coupleId,
+          click_action: 'OPEN_APP',
+        },
+      };
+
+      const msgId = await admin.messaging().send(payload);
+      console.log('Drawing notification sent to:', partnerId, msgId);
+      return { partnerId, skipped: false };
+    }));
+
+    const rejected = sendResults.filter((r) => r.status === 'rejected');
+    if (rejected.length > 0) {
+      rejected.forEach((r) => {
+        const err = r.reason || {};
+        const code = err.code || 'unknown';
+        const message = err.message || String(err);
+        console.error('Drawing notification error:', { code, message });
+      });
+      // Throw to allow platform retry for transient errors.
+      throw new Error(`Drawing notification failed for ${rejected.length} recipients`);
     }
+
+    return { success: true };
   });
 
 /**
@@ -329,8 +353,16 @@ exports.onDrawingUpdated = functions.firestore
 exports.updateToken = functions.https.onCall(async (data, context) => {
   const { userId, fcmToken } = data;
 
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'Giriş yapmalısınız');
+  }
+
   if (!userId || !fcmToken) {
     throw new functions.https.HttpsError('invalid-argument', 'userId ve fcmToken gerekli');
+  }
+
+  if (context.auth.uid !== userId) {
+    throw new functions.https.HttpsError('permission-denied', 'Sadece kendi token kaydınızı güncelleyebilirsiniz');
   }
 
   try {
@@ -345,6 +377,7 @@ exports.updateToken = functions.https.onCall(async (data, context) => {
 
     return { success: true };
   } catch (error) {
-    throw new functions.https.HttpsError('internal', error.message);
+    console.error('updateToken error:', error.message);
+    throw new functions.https.HttpsError('internal', 'Token güncellenemedi');
   }
 });

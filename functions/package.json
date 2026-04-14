@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "gzmy couple app - Firebase Cloud Functions for push notifications",
   "main": "index.js",
+  "scripts": {
+    "lint": "eslint ."
+  },
   "engines": {
     "node": "20"
   },

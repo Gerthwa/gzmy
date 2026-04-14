@@ -184,8 +184,6 @@ class FCMService : FirebaseMessagingService() {
             .setVibrate(longArrayOf(0, 100, 100, 100))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setDefaults(NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_LIGHTS)
-            // Heads-up bildirim olarak göster
-            .setFullScreenIntent(pendingIntent, true)
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
