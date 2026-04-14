@@ -9,6 +9,7 @@ import android.media.AudioAttributes
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.gzmy.app.data.local.AppDatabase
@@ -106,7 +107,8 @@ class GzmyApplication : Application() {
 
                 val prefs = getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
                 val oldToken = prefs.getString("fcm_token", null)
-                val userId = prefs.getString("user_id", null)
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                    ?: prefs.getString("user_id", null)
 
                 // Token'ı her zaman SharedPrefs'e kaydet
                 prefs.edit().putString("fcm_token", token).apply()

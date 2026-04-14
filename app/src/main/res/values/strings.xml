@@ -52,6 +52,7 @@
     
     <!-- Ayarlar -->
     <string name="settings">Ayarlar</string>
+    <string name="profile">Profil</string>
     <string name="notifications">Bildirimler</string>
     <string name="vibration">Titreşim</string>
     <string name="sound">Ses</string>

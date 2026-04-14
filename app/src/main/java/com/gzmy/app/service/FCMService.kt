@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.gzmy.app.R
@@ -31,7 +32,8 @@ class FCMService : FirebaseMessagingService() {
         val prefs = getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("fcm_token", token).apply()
 
-        val userId = prefs.getString("user_id", null)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: prefs.getString("user_id", null)
         if (userId != null) {
             com.google.firebase.firestore.FirebaseFirestore.getInstance()
                 .collection("tokens")

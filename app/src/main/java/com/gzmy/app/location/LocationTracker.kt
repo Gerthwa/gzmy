@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 /**
@@ -106,7 +107,8 @@ object LocationTracker {
     private fun writeLocationToFirestore(context: Context, lat: Double, lng: Double) {
         val prefs = context.getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         val coupleCode = prefs.getString("couple_code", "") ?: ""
-        val userId = prefs.getString("user_id", "") ?: ""
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: (prefs.getString("user_id", "") ?: "")
 
         if (coupleCode.isEmpty() || userId.isEmpty()) return
 

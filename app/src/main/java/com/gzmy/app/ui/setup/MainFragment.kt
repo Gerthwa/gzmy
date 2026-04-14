@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -31,6 +32,7 @@ import com.gzmy.app.databinding.FragmentMainBinding
 import com.gzmy.app.location.LocationTracker
 import com.gzmy.app.ui.chat.ChatFragment
 import com.gzmy.app.ui.drawing.DrawingActivity
+import com.gzmy.app.ui.main.MainActivity
 import com.gzmy.app.util.AnimationUtils as Anim
 import com.gzmy.app.util.GeoUtils
 import com.gzmy.app.util.VibrationManager
@@ -119,7 +121,8 @@ class MainFragment : Fragment() {
         repo = MessageRepository(requireContext())
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         coupleCode = prefs.getString("couple_code", "") ?: ""
-        userId = prefs.getString("user_id", "") ?: ""
+        userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: (prefs.getString("user_id", "") ?: "")
         userName = prefs.getString("user_name", "") ?: ""
 
         Log.d("Gzmy", "MainFragment loaded - coupleCode: '$coupleCode', userId: '$userId', userName: '$userName'")
@@ -127,10 +130,7 @@ class MainFragment : Fragment() {
         if (coupleCode.isEmpty() || userId.isEmpty()) {
             Log.e("Gzmy", "Missing user data, returning to setup")
             Toast.makeText(context, "Oturum bilgileri eksik, lütfen tekrar giriş yapın", Toast.LENGTH_LONG).show()
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.container, SetupFragment())
-                .commit()
+            (activity as? MainActivity)?.showSetupScreen()
             return
         }
 
@@ -224,14 +224,7 @@ class MainFragment : Fragment() {
     private fun setupChatButton() {
         binding.btnChat.setOnClickListener {
             VibrationManager.performHeavyClick(requireContext())
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in_right, R.anim.slide_out_left,
-                    R.anim.slide_in_left, R.anim.slide_out_right
-                )
-                .replace(R.id.container, ChatFragment())
-                .addToBackStack("chat")
-                .commit()
+            (activity as? MainActivity)?.navigateToChatTab()
         }
     }
 
@@ -598,10 +591,7 @@ class MainFragment : Fragment() {
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
 
-        parentFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-            .replace(R.id.container, SetupFragment())
-            .commit()
+        (activity as? MainActivity)?.showSetupScreen()
     }
 
     override fun onDestroyView() {

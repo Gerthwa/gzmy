@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
@@ -27,7 +28,8 @@ class BootReceiver : BroadcastReceiver() {
         Log.d(TAG, "Cihaz yeniden başlatıldı — FCM token yenileniyor")
 
         val prefs = context.getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
-        val userId = prefs.getString("user_id", null)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: prefs.getString("user_id", null)
 
         if (userId.isNullOrEmpty()) {
             Log.d(TAG, "userId yok — token yenileme atlanıyor")

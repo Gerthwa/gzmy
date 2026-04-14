@@ -381,3 +381,35 @@ exports.updateToken = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', 'Token güncellenemedi');
   }
 });
+
+/**
+ * Swipe action write trigger — creates a match on mutual like.
+ */
+exports.onSwipeCreated = functions.firestore
+  .document('swipes/{swipeId}')
+  .onCreate(async (snap) => {
+    const swipe = snap.data() || {};
+    const fromUid = swipe.fromUid;
+    const toUid = swipe.toUid;
+    const direction = (swipe.direction || '').toLowerCase();
+
+    if (!fromUid || !toUid || direction !== 'like') {
+      return null;
+    }
+
+    const reverseId = `${toUid}_${fromUid}`;
+    const reverseDoc = await admin.firestore().collection('swipes').doc(reverseId).get();
+    const reverse = reverseDoc.data() || {};
+    if (!reverseDoc.exists || (reverse.direction || '').toLowerCase() !== 'like') {
+      return null;
+    }
+
+    const sorted = [fromUid, toUid].sort();
+    const matchId = `${sorted[0]}_${sorted[1]}`;
+    await admin.firestore().collection('matches').doc(matchId).set({
+      userIds: sorted,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    return null;
+  });

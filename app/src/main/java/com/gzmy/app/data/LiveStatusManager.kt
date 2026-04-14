@@ -2,6 +2,7 @@ package com.gzmy.app.data
 
 import android.content.Context
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.gzmy.app.data.model.Couple
@@ -62,7 +63,8 @@ object LiveStatusManager {
     fun start(context: Context) {
         val prefs = context.getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         val coupleCode = prefs.getString("couple_code", "") ?: ""
-        val userId = prefs.getString("user_id", "") ?: ""
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: (prefs.getString("user_id", "") ?: "")
 
         if (coupleCode.isEmpty() || userId.isEmpty()) {
             Log.w(TAG, "Cannot start: missing coupleCode or userId")
@@ -140,7 +142,8 @@ object LiveStatusManager {
     fun writeMissLevel(context: Context, level: Int) {
         val prefs = context.getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         val coupleCode = prefs.getString("couple_code", "") ?: ""
-        val userId = prefs.getString("user_id", "") ?: ""
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: (prefs.getString("user_id", "") ?: "")
 
         if (coupleCode.isEmpty() || userId.isEmpty()) return
 

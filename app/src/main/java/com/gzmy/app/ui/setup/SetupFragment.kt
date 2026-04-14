@@ -12,19 +12,22 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.gzmy.app.R
+import com.gzmy.app.data.AuthSessionManager
 import com.gzmy.app.data.model.Couple
+import com.gzmy.app.data.repository.ProfileRepository
 import com.gzmy.app.databinding.FragmentSetupBinding
+import com.gzmy.app.ui.main.AvatarHost
 import com.gzmy.app.util.AnimationUtils as Anim
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class SetupFragment : Fragment() {
     private var _binding: FragmentSetupBinding? = null
     private val binding get() = _binding!!
     private val db = FirebaseFirestore.getInstance()
+    private val profileRepo = ProfileRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +40,7 @@ class SetupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (activity as? AvatarHost)?.setAvatarEnabled(false)
 
         binding.btnCreateCouple.setOnClickListener { v ->
             Anim.pressScale(v) { showCreateCoupleView() }
@@ -96,24 +100,26 @@ class SetupFragment : Fragment() {
         }
 
         val code = generateCoupleCode()
-        val userId = UUID.randomUUID().toString()
 
         binding.progressBar.visibility = View.VISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
+                val authUid = AuthSessionManager.ensureSignedIn(requireContext())
                 withContext(Dispatchers.IO) {
                     val couple = Couple(
                         code = code,
-                        partner1Id = userId,
+                        partner1Id = authUid,
                         partner1Name = name,
                         createdAt = Timestamp.now(),
                         lastActivity = Timestamp.now()
                     )
                     db.collection("couples").document(code).set(couple).await()
+                    profileRepo.ensureProfile(name)
+                    profileRepo.setInCouple(true)
                 }
 
-                saveUserData(code, userId, name)
+                saveUserData(code, authUid, name)
                 showCodeCreated(code)
 
             } catch (e: Exception) {
@@ -144,7 +150,7 @@ class SetupFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val userId = UUID.randomUUID().toString()
+                val authUid = AuthSessionManager.ensureSignedIn(requireContext())
 
                 withContext(Dispatchers.IO) {
                     val doc = db.collection("couples").document(code).get().await()
@@ -161,13 +167,15 @@ class SetupFragment : Fragment() {
                     }
 
                     db.collection("couples").document(code).update(
-                        "partner2Id", userId,
+                        "partner2Id", authUid,
                         "partner2Name", name,
                         "lastActivity", Timestamp.now()
                     ).await()
+                    profileRepo.ensureProfile(name)
+                    profileRepo.setInCouple(true)
                 }
 
-                saveUserData(code, userId, name)
+                saveUserData(code, authUid, name)
                 Toast.makeText(context, "Çifte katıldın! 💕", Toast.LENGTH_SHORT).show()
                 navigateToMain()
 
@@ -241,13 +249,11 @@ class SetupFragment : Fragment() {
     }
 
     private fun navigateToMain() {
-        parentFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-            .replace(R.id.container, MainFragment())
-            .commit()
+        (activity as? com.gzmy.app.ui.main.MainActivity)?.showAppShell()
     }
 
     override fun onDestroyView() {
+        (activity as? AvatarHost)?.setAvatarEnabled(true)
         super.onDestroyView()
         _binding = null
     }

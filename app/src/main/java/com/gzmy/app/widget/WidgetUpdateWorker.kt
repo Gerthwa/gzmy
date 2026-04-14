@@ -10,6 +10,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.gzmy.app.data.model.Couple
 import kotlinx.coroutines.tasks.await
@@ -62,7 +63,8 @@ class WidgetUpdateWorker(
         return try {
             val prefs = applicationContext.getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
             val coupleCode = prefs.getString("couple_code", "") ?: ""
-            val userId = prefs.getString("user_id", "") ?: ""
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+                ?: (prefs.getString("user_id", "") ?: "")
 
             if (coupleCode.isEmpty() || userId.isEmpty()) {
                 Log.w(TAG, "No user session, skipping widget update")

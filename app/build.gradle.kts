@@ -81,6 +81,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
     
     // Room Database (Offline-First)
     implementation("androidx.room:room-runtime:2.6.1")

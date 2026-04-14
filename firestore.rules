@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Çiftler koleksiyonu
     match /couples/{coupleCode} {
       allow read: if isAuthenticated();
@@ -11,27 +11,51 @@ service cloud.firestore {
         resource.data.partner2Id == request.auth.uid
       );
     }
-    
+
     // Mesajlar koleksiyonu
     match /messages/{messageId} {
       allow read: if isAuthenticated() && isCoupleMember(resource.data.coupleCode);
       allow create: if isAuthenticated() && isCoupleMember(request.resource.data.coupleCode);
       allow update: if isAuthenticated() && isCoupleMember(resource.data.coupleCode);
     }
-    
+
     // Tokenlar koleksiyonu
     match /tokens/{userId} {
       allow read: if isAuthenticated() && userId == request.auth.uid;
       allow write: if isAuthenticated() && userId == request.auth.uid;
     }
-    
+
+    // Keşif profilleri
+    match /profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && userId == request.auth.uid;
+    }
+
+    // Swipe kayıtları
+    match /swipes/{swipeId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() &&
+        request.resource.data.fromUid == request.auth.uid;
+    }
+
+    // Match kayıtları
+    match /matches/{matchId} {
+      allow read: if isAuthenticated() &&
+        request.auth.uid in resource.data.userIds;
+      allow create, update: if false;
+    }
+
     // Yardımcı fonksiyonlar
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isCoupleMember(coupleCode) {
-      return exists(/databases/$(database)/documents/couples/$(coupleCode));
+      return isAuthenticated() &&
+        (
+          get(/databases/$(database)/documents/couples/$(coupleCode)).data.partner1Id == request.auth.uid ||
+          get(/databases/$(database)/documents/couples/$(coupleCode)).data.partner2Id == request.auth.uid
+        );
     }
   }
 }

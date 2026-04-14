@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.gzmy.app.R
@@ -19,6 +20,7 @@ import com.gzmy.app.data.AppEventBus
 import com.gzmy.app.data.model.Message
 import com.gzmy.app.data.repository.MessageRepository
 import com.gzmy.app.databinding.FragmentChatBinding
+import com.gzmy.app.ui.main.MainActivity
 import com.gzmy.app.util.AnimationUtils as Anim
 import com.gzmy.app.util.VibrationManager
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +61,8 @@ class ChatFragment : Fragment() {
 
         val prefs = requireActivity().getSharedPreferences("gzmy_prefs", Context.MODE_PRIVATE)
         coupleCode = prefs.getString("couple_code", "") ?: ""
-        userId = prefs.getString("user_id", "") ?: ""
+        userId = FirebaseAuth.getInstance().currentUser?.uid
+            ?: (prefs.getString("user_id", "") ?: "")
         userName = prefs.getString("user_name", "") ?: ""
 
         loadPartnerName()
@@ -131,7 +134,7 @@ class ChatFragment : Fragment() {
 
     private fun setupBackButton() {
         binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
+            (activity as? MainActivity)?.showAppShell()
         }
     }
 
